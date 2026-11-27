@@ -280,7 +280,7 @@ var DEFAULT_AGENTS = ['천서희','강효은','이지은','문예지','신입'];
 var STATES = ['접수','콜백 대기','완료'];
 var KINDS = ['예약 문의','예약 변경','시술 문의','사후 관리','기타'];
 var SOON_MS = 30 * 60 * 1000;
-var FEED_SIZE = 8;
+var FEED_SIZE = 12;
 
 /* ---------- 상태 ---------- */
 function readJSON(key, fallback){
@@ -293,7 +293,8 @@ function writeJSON(key, value){
 }
 function uid(){ return (crypto && crypto.randomUUID) ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2); }
 
-var cfg = Object.assign({mode:'local', remoteBase:'', sheetUrl:'', sheetName:''}, readJSON(K.cfg, {}));
+var DEFAULT_SHEET = 'https://docs.google.com/spreadsheets/d/1KmzJPAI3BJppZEmuvpgQRmKO_kWC6BeAy6XLnRKUV-E/edit';
+var cfg = Object.assign({mode:'sheet', remoteBase:'', sheetUrl:DEFAULT_SHEET, sheetName:''}, readJSON(K.cfg, {}));
 var agents = normalizeAgents(readJSON(K.agents, null));
 var calls = readJSON(K.calls, []);
 var leads = [];
@@ -384,15 +385,21 @@ function isSheet(){ return cfg.mode === 'sheet'; }
 /* ---------- Google 시트 (CSV) ---------- */
 var COL_WORDS = {
   date:['날짜','일자','접수일','문의일','date'],
-  name:['이름','성함','고객명','고객','성명','name'],
+  name:['고객명','환자명','이름','성함','고객','성명','name'],
   phone:['연락처','전화','휴대폰','핸드폰','번호','phone','tel'],
-  channel:['유입','경로','채널','매체','광고','source'],
-  memo:['메모','상담내용','문의내용','내용','비고','특이','memo'],
-  result:['결과','콜결과','상태','result'],
-  booking:['예약일','예약','booking']
+  channel:['내원경로','유입경로','유입','경로','채널','매체','광고','source'],
+  memo:['상담메모','상담 메모','메모','상담내용','문의내용','내용','비고','특이','memo'],
+  result:['콜결과','결과','상태','result'],
+  booking:['예약일','예약','booking'],
+  booker:['예약자','작성자','담당자'],
+  category:['환자구분','구분'],
+  treatment:['시술명','시술'],
+  reason:['미예약 사유','미예약사유','사유'],
+  visited:['내원여부','내원 여부','방문여부'],
+  recall:['리콜','재콜']
 };
-var COL_LABEL = {date:'날짜', name:'이름', phone:'연락처', channel:'유입경로', memo:'메모', result:'결과', booking:'예약일'};
-var FALLBACK_MAP = {date:0, name:1, phone:2, channel:3, memo:4, result:5, booking:6};
+var COL_LABEL = {date:'날짜', name:'이름', phone:'연락처', channel:'유입경로', memo:'메모', result:'결과', booking:'예약일', booker:'예약자', category:'구분', treatment:'시술명', reason:'사유', visited:'내원여부', recall:'리콜'};
+var FALLBACK_MAP = {date:0, booker:1, channel:2, category:3, name:4, phone:5, treatment:6, result:7, booking:8, reason:9, memo:10, visited:11, recall:12};
 
 function parseCSV(text){
   var rows = [], row = [], field = '', inQ = false, i = 0;
@@ -416,13 +423,21 @@ function parseCSV(text){
   return rows;
 }
 function detectColumns(header){
-  var map = {}, cells = (header || []).map(function(h){ return String(h == null ? '' : h).trim().toLowerCase(); });
+  var map = {}, used = {};
+  var cells = (header || []).map(function(h){ return String(h == null ? '' : h).trim().toLowerCase(); });
   Object.keys(COL_WORDS).forEach(function(key){
-    for(var i = 0; i < cells.length; i++){
-      var cell = cells[i];
-      if(!cell) continue;
-      var hit = COL_WORDS[key].some(function(word){ return cell.indexOf(word) >= 0; });
-      if(hit){ map[key] = i; return; }
+    var words = COL_WORDS[key], i, w;
+    for(w = 0; w < words.length; w++){
+      for(i = 0; i < cells.length; i++){
+        if(used[i] || !cells[i]) continue;
+        if(cells[i] === words[w]){ map[key] = i; used[i] = true; return; }
+      }
+    }
+    for(w = 0; w < words.length; w++){
+      for(i = 0; i < cells.length; i++){
+        if(used[i] || !cells[i]) continue;
+        if(cells[i].indexOf(words[w]) >= 0){ map[key] = i; used[i] = true; return; }
+      }
     }
   });
   return map;
@@ -436,21 +451,36 @@ function formatPhone(v){
   if(d.length === 11) return d.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
   return d;
 }
+function sheetDateValue(v){
+  var m = String(v == null ? '' : v).match(/(\d{1,2})\s*[\/.\-]\s*(\d{1,2})/);
+  if(!m) return 0;
+  var now = new Date(), year = now.getFullYear(), month = +m[1], day = +m[2];
+  if(month < 1 || month > 12 || day < 1 || day > 31) return 0;
+  if(month > now.getMonth() + 2) year -= 1;
+  return new Date(year, month - 1, day).getTime();
+}
 function leadsFromRows(rows, map, headerIndex){
   var out = [];
   rows.forEach(function(r, idx){
     if(idx <= headerIndex) return;
     function cell(k){ var p = map[k]; if(p == null) return ''; var v = r[p]; return String(v == null ? '' : v).trim(); }
     var date = cell('date'), name = cell('name'), rawPhone = cell('phone');
-    var channel = cell('channel'), memo = cell('memo'), result = cell('result'), booking = cell('booking');
     if(!name && !digits(rawPhone)) return;
     var phone = formatPhone(rawPhone);
+    var channel = cell('channel'), memo = cell('memo'), treatment = cell('treatment');
     var key = 'sheet:' + JSON.stringify([date, name, digits(phone)]) + ':' + idx;
     out.push({
-      key: key, name: name, phone: phone, date: date, channel: channel,
+      key: key, idx: idx, name: name, phone: phone, date: date, channel: channel,
       isMeta: /인스타|메타|meta|페이스북|facebook|sns|유튜브|블로그/i.test(channel),
-      memo: memo, result: result, booking: booking
+      result: cell('result'), booking: cell('booking'), booker: cell('booker'),
+      category: cell('category'), treatment: treatment.slice(0, 160), memo: memo.slice(0, 600),
+      reason: cell('reason'), visited: cell('visited'),
+      ts: sheetDateValue(date)
     });
+  });
+  out.sort(function(a, b){
+    if(a.ts !== b.ts) return b.ts - a.ts;
+    return b.idx - a.idx;
   });
   return out;
 }
@@ -713,8 +743,14 @@ function startFromLead(l){
   $('name').value = l.name || '';
   $('phone').value = l.phone || '';
   $('channel').value = l.channel || '';
-  $('memo').value = [l.memo, l.result && '기존 콜결과 · ' + l.result, l.booking && '예약일 · ' + l.booking]
-    .filter(Boolean).join('\n').slice(0, 2000);
+  $('memo').value = [
+    l.treatment && '시술명 · ' + l.treatment,
+    l.memo,
+    l.result && '기존 콜결과 · ' + l.result,
+    l.reason && '미예약 사유 · ' + l.reason,
+    l.booking && '예약일 · ' + l.booking,
+    l.booker && l.name && l.booker !== l.name ? '예약자 · ' + l.booker : ''
+  ].filter(Boolean).join('\n').slice(0, 2000);
   $('state').value = '콜백 대기';
   toggleCallback();
   $('title').textContent = (l.name || '광고 문의') + ' · 상담 접수';
@@ -806,11 +842,11 @@ async function saveCurrent(){
 }
 
 /* ---------- 문의함 ---------- */
+function leadKeyBase(k){ return String(k == null ? '' : k).replace(/:\d+$/, ''); }
 function leadRegistered(l){
   return calls.find(function(c){
-    if(c.lead_key && l.key && c.lead_key === l.key) return true;
-    var k = phoneKey(l.phone);
-    return k.length >= 9 && phoneKey(c.phone) === k;
+    if(!c.lead_key || !l.key) return false;
+    return c.lead_key === l.key || leadKeyBase(c.lead_key) === leadKeyBase(l.key);
   });
 }
 function filteredLeads(){
@@ -822,10 +858,19 @@ function filteredLeads(){
     if(source === 'meta' && !l.isMeta) return false;
     if(source === 'unhandled' && leadRegistered(l)) return false;
     if(!q) return true;
-    var hay = [l.name, l.phone, l.channel, l.memo, l.result, l.booking].filter(Boolean).join(' ').toLowerCase();
+    var hay = [l.name, l.phone, l.channel, l.memo, l.result, l.booking, l.booker, l.treatment, l.category, l.reason].filter(Boolean).join(' ').toLowerCase();
     if(hay.indexOf(q) >= 0) return true;
     return qd.length >= 3 && digits(l.phone).indexOf(qd) >= 0;
   });
+}
+function leadMeta(l){
+  return [
+    l.date, l.channel, l.category,
+    l.booker && l.name && l.booker !== l.name ? '예약자 ' + l.booker : '',
+    l.result,
+    l.booking ? '예약 ' + l.booking : '',
+    l.visited
+  ].filter(Boolean).join(' · ');
 }
 function feedLine(l){
   var saved = leadRegistered(l);
@@ -834,10 +879,10 @@ function feedLine(l){
   b.className = 'row';
   var body = el('div');
   body.append(el('strong', null, [l.name || '이름 미기재', l.phone].filter(Boolean).join(' · ')));
-  var detail = el('small', null, [l.channel || '시트', l.date, l.result, l.booking && ('예약 ' + l.booking)].filter(Boolean).join('  /  '));
-  body.append(detail);
-  if(l.memo){
-    var memo = el('small', null, String(l.memo).replace(/\s+/g, ' ').slice(0, 140));
+  body.append(el('small', null, leadMeta(l) || (l.channel || '시트')));
+  var note = [l.treatment, l.memo].filter(Boolean).join(' — ');
+  if(note){
+    var memo = el('small', null, String(note).replace(/\s+/g, ' ').slice(0, 160));
     memo.style.color = '#7b8f9b';
     body.append(memo);
   }
