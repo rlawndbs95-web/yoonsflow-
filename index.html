@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>상담 데스크 · YOONSFLOW</title>
+<style>
+:root{--header:#123540;--accent:#11675f;--bg:#f2f6f7;--line:#d7e2e4;--ink:#192d3a;--muted:#506774}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);background:var(--bg);font:16px/1.55 system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:var(--header);color:#fff;padding:16px 6%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+header strong{letter-spacing:.09em;font-size:16px}
+header small{color:#b6d6d9;font-size:13px}
+.head-right{display:flex;align-items:center;gap:8px}
+main{max-width:1160px;margin:auto;padding:34px 24px 56px}
+h1{font-size:32px;margin:0;letter-spacing:-.01em}
+h2{font-size:19px;margin:0 0 14px}
+p{color:var(--muted);margin:4px 0 20px}
+.lede{margin-bottom:0}
+.grid{display:grid;grid-template-columns:1.45fr 1fr;gap:20px;align-items:start}
+.panel,.stat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:22px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}
+.stat{font-size:13.5px;color:#4c6570;border-top:3px solid #459a99;padding:16px 18px}
+.stat b{display:block;color:#183944;font-size:28px;line-height:1.2;margin-top:2px}
+.stat.warn{border-top-color:#d97706}
+.stat.warn b{color:#a3560b}
+label{display:block;font-weight:600;margin:12px 0 4px;font-size:14.5px}
+input,select,textarea,button{font:inherit;border-radius:8px;border:1px solid #c2d2d6;padding:9px;background:#fff;color:inherit}
+input,textarea,select{width:100%}
+textarea{resize:vertical}
+button{cursor:pointer}
+button.primary{background:var(--accent);color:#fff;border:0;width:100%;margin-top:14px;padding:12px;font-weight:600}
+button.primary:hover{background:#0d574f}
+button:disabled{opacity:.5;cursor:default}
+button.ghost{background:transparent;color:#dbecef;border:1px solid #3d6472;padding:7px 13px;font-size:14px}
+button.ghost:hover{background:#1b4653}
+button.small{padding:6px 11px;font-size:13.5px}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filters input{flex:2;min-width:150px}
+.filters select{flex:1;min-width:110px}
+.row{border:0;border-bottom:1px solid #dce6e8;width:100%;padding:14px 10px;text-align:left;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-radius:8px;background:transparent}
+.row:hover{background:#f5fafb}
+.row>div{min-width:0;flex:1}
+.row strong{display:block;font-size:15px;font-weight:700;overflow-wrap:anywhere}
+.row small{display:block;color:#5b7280;font-size:13px;margin-top:3px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.badge{font-size:13px;background:#e8f3ef;color:#166758;padding:4px 10px;border-radius:20px;white-space:nowrap;flex:none}
+.badge.soft{background:#e6eef1;color:#3c5c69}
+.badge.done{background:#e6eef1;color:#4a6472}
+.badge.new{background:#e8f3ef;color:#11675f}
+.badge.due{background:#fdeceb;color:#a5251c}
+.badge.soon{background:#fff2df;color:#96560a}
+.empty{text-align:center;padding:36px 12px;color:#627784;font-size:14.5px}
+#msg{color:#0d6b46;font-size:14px;min-height:22px;margin:16px 0 0}
+#msg.err{color:#a5251c}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.two{display:flex;gap:12px}
+.two>div{flex:1;min-width:0}
+.chip{font-size:12.5px;padding:4px 10px;border-radius:20px;background:#dff0f2;color:#0f4b57;white-space:nowrap}
+.inbox{margin:0 0 20px}
+.inbox .top{margin-bottom:12px}
+.inbox .top h2{margin:0}
+.inbox .filters select{flex:1.2}
+#feedStatus{display:block;margin:10px 0 4px;color:#5b7280;font-size:13px}
+#feedRows{max-height:min(60vh,470px);overflow:auto;border-top:1px solid #dce6e8;padding:2px 0}
+#list{max-height:min(62vh,520px);overflow:auto}
+#list .row{padding:13px 8px}
+.row.urgent{background:#fdf3f2;box-shadow:inset 3px 0 0 #c0392b}
+.row.soon{background:#fff9ef;box-shadow:inset 3px 0 0 #d97706}
+.paging{display:flex;gap:8px;justify-content:space-between;align-items:center;margin:12px 0 0;font-size:13px;color:#5b7280}
+.paging div{display:flex;gap:8px}
+.alert{display:flex;align-items:center;gap:10px;justify-content:space-between;background:#fdf3f2;border:1px solid #f0cfcb;color:#8d2b21;border-radius:12px;padding:12px 16px;margin:0 0 18px;font-size:14.5px;flex-wrap:wrap}
+.alert[hidden]{display:none}
+.alert.soon-only{background:#fff8ec;border-color:#f2ddb9;color:#8a5309}
+.leadbar{display:none;align-items:center;justify-content:space-between;gap:10px;background:#eef6f4;border:1px solid #cfe4de;border-radius:10px;padding:10px 12px;margin:0 0 6px;font-size:13.5px;color:#1c5f57}
+.leadbar.on{display:flex}
+.leadbar button{background:transparent;border:0;color:#8a3b32;font-size:13px;text-decoration:underline;padding:2px 4px}
+#dupNotice{display:none;margin:10px 0 0;font-size:13px;color:#96560a;background:#fff8ec;border:1px solid #f0dcbd;border-radius:8px;padding:8px 10px}
+#dupNotice.on{display:block}
+#callbackWrap{display:none}
+#callbackWrap.on{display:block}
+.hint{font-size:12.5px;color:#6b8090;margin:5px 0 0}
+.detail-meta{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 4px}
+footer.data{margin-top:26px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:#6b8090;font-size:13px}
+footer.data button{font-size:13.5px;padding:7px 12px}
+.modal{position:fixed;inset:0;background:rgba(18,53,64,.5);display:flex;align-items:flex-start;justify-content:center;padding:5vh 16px;z-index:50;overflow:auto}
+.modal[hidden]{display:none}
+.sheet{background:#fff;border-radius:16px;max-width:620px;width:100%;padding:24px 26px 26px;box-shadow:0 20px 60px rgba(10,35,45,.28)}
+.sheet h2{margin:0 0 4px}
+.sheet h3{font-size:16px;margin:26px 0 6px;padding-top:18px;border-top:1px solid #e2eaec}
+.sheet .row-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.sheet .row-actions button{padding:10px 18px}
+button.danger{background:#fff;border:1px solid #e3b7b2;color:#a5251c;padding:8px 12px;font-size:13.5px}
+.mode-row{display:flex;gap:10px 16px;margin:8px 0 4px;font-size:14.5px;flex-wrap:wrap}
+.mode-row label{display:flex;align-items:center;gap:6px;margin:0;font-weight:500}
+.mode-row input{width:auto}
+#sheetWrap,#remoteWrap{display:none;margin-top:8px;padding:12px 14px;background:#f6fafb;border:1px solid #dde8ea;border-radius:10px}
+#sheetWrap.on,#remoteWrap.on{display:block}
+#sheetWrap .hint,#remoteWrap .hint{margin-top:8px;line-height:1.45}
+#sheetResult,#remoteResult{display:block;margin-top:6px}
+.agent-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:8px}
+.agent-grid label{margin:0 0 3px;font-size:13px;color:#4c6570}
+@media(max-width:820px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.agent-grid{grid-template-columns:1fr}}
+@media(max-width:750px){.stat{padding:12px}.panel{padding:16px}main{padding:22px 14px}h1{font-size:27px}.filters select{flex-basis:47%}header{padding:14px 5%}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><strong>YOONSFLOW</strong><small>병원 CS 센터 · 5석</small></div>
+  <div class="head-right">
+    <span class="chip" id="modeChip">로컬 저장</span>
+    <button id="openSettings" class="ghost" type="button">설정</button>
+  </div>
+</header>
+<main>
+  <div class="top"><h1>상담 데스크</h1><span class="badge soft" id="connBadge">KT 회선 미연결</span></div>
+  <p class="lede">상담 접수와 콜백 이력을 관리하세요.</p>
+
+  <div class="stats">
+    <div class="stat">오늘 접수<b id="today">–</b></div>
+    <div class="stat">콜백 대기<b id="pending">–</b></div>
+    <div class="stat">오늘 접수 중 완료<b id="done">–</b></div>
+    <div class="stat warn">콜백 임박·지남<b id="dueCount">–</b></div>
+  </div>
+
+  <div class="alert" id="dueBanner" hidden>
+    <span id="dueText"></span>
+    <button class="small" id="dueJump" type="button">목록에서 보기</button>
+  </div>
+
+  <section class="panel inbox">
+    <div class="top">
+      <h2>광고·시트 문의함</h2>
+      <div style="display:flex;gap:8px">
+        <button id="reloadFeed" class="small" type="button">새로고침</button>
+      </div>
+    </div>
+    <div class="filters">
+      <select id="feedSource" aria-label="유입 출처">
+        <option value="all">전체 문의</option>
+        <option value="sheet">시트 · 인콜/네이버</option>
+        <option value="meta">메타·SNS 유입</option>
+        <option value="unhandled">미접수만</option>
+      </select>
+      <input id="leadSearch" aria-label="문의 검색" placeholder="고객명 · 전화번호 · 내원경로 · 메모">
+    </div>
+    <small id="feedStatus" role="status">문의 확인 중…</small>
+    <div id="feedRows"></div>
+    <div class="paging">
+      <span id="feedPageInfo"></span>
+      <div><button id="prevPage" disabled type="button">이전</button><button id="nextPage" disabled type="button">다음</button></div>
+    </div>
+    <details id="metaSettings" hidden>
+      <summary>Meta 광고 연결 설정</summary>
+      <p>광고 양식 ID와 잠재고객 조회 권한이 있는 페이지 토큰을 입력하세요. 연결을 확인한 뒤 토큰을 암호화해 저장합니다. (원격 API 모드에서만 동작)</p>
+      <form id="metaForm">
+        <label for="formId">잠재고객 양식 ID</label><input id="formId" required pattern="[0-9]{4,30}">
+        <label for="pageToken">페이지 액세스 토큰</label><input id="pageToken" required type="password" autocomplete="off">
+        <button class="primary">연결 확인 및 저장</button>
+      </form>
+      <span id="metaResult" role="status"></span>
+    </details>
+  </section>
+
+  <div class="grid">
+    <section class="panel">
+      <div class="top" style="margin-bottom:12px"><h2 style="margin:0">상담 목록</h2><span class="hint" id="listCount"></span></div>
+      <div class="filters">
+        <input id="search" placeholder="고객명 · 전화번호 · 상담 메모 검색" aria-label="상담 통합 검색">
+        <select id="filter" aria-label="상태 필터">
+          <option value="">전체 상태</option>
+          <option>접수</option>
+          <option>콜백 대기</option>
+          <option>완료</option>
+        </select>
+        <select id="filterAgent" aria-label="담당 상담원 필터"><option value="">전체 담당</option></select>
+      </div>
+      <div id="list" style="margin-top:10px">불러오는 중…</div>
+    </section>
+
+    <section class="panel" id="formPanel">
+      <div class="top" style="margin-bottom:6px"><h2 id="title" style="margin:0">상담 접수</h2><button id="reset" type="button" class="small">새 접수</button></div>
+      <div class="leadbar" id="leadBar">
+        <span id="leadBarText"></span>
+        <button type="button" id="leadClear">연결 해제</button>
+      </div>
+      <form id="form">
+        <label for="name">고객명</label>
+        <input id="name" maxlength="60" placeholder="고객 이름">
+        <label for="phone">전화번호</label>
+        <input id="phone" type="tel" required maxlength="25" placeholder="010-0000-0000">
+        <div id="dupNotice" role="status"></div>
+        <div class="two">
+          <div><label for="agent">담당 상담원</label><select id="agent"></select></div>
+          <div><label for="kind">상담 유형</label><select id="kind"></select></div>
+        </div>
+        <div class="two">
+          <div><label for="state">처리 상태</label><select id="state"></select></div>
+          <div><label for="channel">유입경로</label><input id="channel" maxlength="40" placeholder="인콜 · 네이버 · 메타"></div>
+        </div>
+        <div id="callbackWrap">
+          <label for="callback">콜백 예정 시각</label>
+          <input id="callback" type="datetime-local">
+          <p class="hint">예정 시각이 30분 내로 임박하거나 지난 건은 목록 상단에 강조됩니다.</p>
+        </div>
+        <label for="memo">상담 메모</label>
+        <textarea id="memo" rows="4" maxlength="2000" placeholder="문의 내용이나 콜백 시 확인할 내용을 입력하세요."></textarea>
+        <button class="primary" id="save" type="submit">상담 저장</button>
+      </form>
+    </section>
+  </div>
+
+  <p id="msg" role="status"></p>
+
+  <footer class="data">
+    <span>데이터</span>
+    <button type="button" id="footerDemo">데모 데이터 불러오기</button>
+    <button type="button" id="footerExport">내보내기(JSON)</button>
+    <button type="button" id="footerImport">가져오기</button>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+    <span id="storageNote">브라우저(localStorage)에 저장됩니다.</span>
+  </footer>
+</main>
+
+<div class="modal" id="settingsModal" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="sheet">
+    <div class="top"><h2 id="settingsTitle">설정</h2><button type="button" class="small" id="closeSettings">닫기</button></div>
+
+    <h3>상담원 이름 (5석)</h3>
+    <p class="hint" style="margin:0 0 6px">비워 두면 기본 이름으로 표시됩니다. 이름은 이 브라우저에 저장됩니다.</p>
+    <div class="agent-grid" id="agentGrid"></div>
+
+    <h3>저장 방식</h3>
+    <div class="mode-row">
+      <label><input type="radio" name="mode" value="local"> 이 브라우저에 저장</label>
+      <label><input type="radio" name="mode" value="sheet"> Google 시트 연결</label>
+      <label><input type="radio" name="mode" value="remote"> 원격 API 연결</label>
+    </div>
+    <div id="sheetWrap">
+      <label for="sheetUrl">Google 시트 링크</label>
+      <input id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/…/edit#gid=0">
+      <label for="sheetName">시트 탭 이름 (선택)</label>
+      <input id="sheetName" placeholder="예: 상담일지">
+      <p class="hint">시트를 <b>링크가 있는 모든 사용자 · 뷰어</b>로 공유하면 브라우저에서 바로 읽습니다. 날짜·이름·연락처 열은 자동으로 인식합니다.</p>
+      <button type="button" class="small" id="testSheet">시트 연결 확인</button>
+      <span id="sheetResult" class="hint" role="status"></span>
+    </div>
+    <div id="remoteWrap">
+      <label for="remoteBase">원격 API 주소</label>
+      <input id="remoteBase" placeholder="https://yoonsflow-call-desk.rlawndbs95.chatgpt.site">
+      <p class="hint">주소의 <code>/api/calls</code>, <code>/api/leads</code>를 사용합니다. 다른 사이트에서 호출하려면 해당 서버가 CORS를 허용해야 합니다.</p>
+      <button type="button" class="small" id="testRemote">연결 확인</button>
+      <span id="remoteResult" class="hint" role="status"></span>
+    </div>
+
+    <h3>데이터 관리</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <button type="button" class="small" id="demoLoad">데모 데이터 불러오기</button>
+      <button type="button" class="small" id="exportBtn">내보내기(JSON)</button>
+      <button type="button" class="small" id="importBtn">가져오기</button>
+      <button type="button" class="danger" id="wipeBtn">전체 초기화</button>
+    </div>
+    <p class="hint" id="dataCounts"></p>
+
+    <div class="row-actions">
+      <button type="button" class="small" id="cancelSettings">취소</button>
+      <button type="button" class="primary" style="width:auto;margin:0" id="saveSettings">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 상수 · 저장 키 ---------- */
+var $ = function(id){ return document.getElementById(id); };
+var K = {calls:'ydesk.calls.v1', leads:'ydesk.leads.v1', agents:'ydesk.agents.v1', cfg:'ydesk.cfg.v1', meta:'ydesk.meta.v1', sheet:'ydesk.sheet.v1'};
+var DEFAULT_AGENTS = ['천서희','강효은','이지은','문예지','신입'];
+var STATES = ['접수','콜백 대기','완료'];
+var KINDS = ['예약 문의','예약 변경','시술 문의','사후 관리','기타'];
+var SOON_MS = 30 * 60 * 1000;
+var FEED_SIZE = 8;
+
+/* ---------- 상태 ---------- */
+function readJSON(key, fallback){
+  try{ var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e){ return fallback; }
+}
+function writeJSON(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch(e){ flash('브라우저 저장 공간이 부족해 저장하지 못했습니다. 내보내기로 백업한 뒤 정리해 주세요.', true); return false; }
+}
+function uid(){ return (crypto && crypto.randomUUID) ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2); }
+
+var cfg = Object.assign({mode:'local', remoteBase:'', sheetUrl:'', sheetName:''}, readJSON(K.cfg, {}));
+var agents = normalizeAgents(readJSON(K.agents, null));
+var calls = readJSON(K.calls, []);
+var leads = [];
+var meta = readJSON(K.meta, {form:'', connected:false});
+
+var selected = null, leadDraft = null, draftId = uid();
+var feedPage = 0, feedSeq = 0, feedTimer = null;
+
+function normalizeAgents(list){
+  var out = [];
+  for(var i = 0; i < 5; i++){
+    var v = Array.isArray(list) ? list[i] : null;
+    out.push(v && String(v).trim() ? String(v).trim() : DEFAULT_AGENTS[i]);
+  }
+  return out;
+}
+
+/* ---------- 날짜 ---------- */
+function dayKey(v){
+  var d = new Date(v);
+  if(isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('sv-SE', {timeZone:'Asia/Seoul'});
+}
+function fmtDateTime(v){
+  var d = new Date(v);
+  if(isNaN(d.getTime())) return '';
+  return d.toLocaleString('ko-KR', {timeZone:'Asia/Seoul', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false});
+}
+function fmtTime(v){
+  var d = new Date(v);
+  if(isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString('ko-KR', {timeZone:'Asia/Seoul', hour:'2-digit', minute:'2-digit', hour12:false});
+}
+function digits(s){ return String(s == null ? '' : s).replace(/\D/g, ''); }
+function phoneKey(s){
+  var d = digits(s);
+  if(d.indexOf('82') === 0 && d.length > 10) d = '0' + d.slice(2);
+  return d;
+}
+function toLocalInput(v){
+  if(!v) return '';
+  var d = new Date(v);
+  if(isNaN(d.getTime())) return '';
+  var parts = d.toLocaleString('sv-SE', {timeZone:'Asia/Seoul', hour12:false}).split(' ');
+  return parts[0] + 'T' + parts[1].slice(0,5);
+}
+function fromLocalInput(v){
+  if(!v) return '';
+  var d = new Date(v);
+  return isNaN(d.getTime()) ? '' : d.toISOString();
+}
+function roundNowPlus(min){
+  var t = new Date(Date.now() + min * 60000);
+  t.setSeconds(0, 0);
+  t.setMinutes(Math.ceil(t.getMinutes() / 5) * 5);
+  return t;
+}
+
+/* ---------- 콜백 임박 판정 ---------- */
+function dueInfo(c){
+  if(!c || c.state !== '콜백 대기' || !c.callback_at) return {rank:3, label:'', cls:''};
+  var t = new Date(c.callback_at).getTime();
+  if(isNaN(t)) return {rank:3, label:'', cls:''};
+  var diff = t - Date.now();
+  if(diff < 0) return {rank:0, label:'콜백 ' + fmtTime(t) + ' 지남', cls:'urgent'};
+  if(diff <= SOON_MS) return {rank:1, label:'콜백 ' + fmtTime(t) + ' 임박', cls:'soon'};
+  return {rank:2, label:'콜백 ' + fmtTime(t), cls:''};
+}
+
+/* ---------- 공통 UI ---------- */
+function flash(text, isError){
+  var m = $('msg');
+  m.textContent = text || '';
+  m.className = isError ? 'err' : '';
+}
+function el(tag, cls, text){
+  var n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(text != null) n.textContent = text;
+  return n;
+}
+
+/* ---------- API (원격 모드) ---------- */
+function apiBase(){ return (cfg.mode === 'remote' && cfg.remoteBase) ? String(cfg.remoteBase).replace(/\/+$/, '') : ''; }
+function isRemote(){ return !!apiBase(); }
+function isSheet(){ return cfg.mode === 'sheet'; }
+
+/* ---------- Google 시트 (CSV) ---------- */
+var COL_WORDS = {
+  date:['날짜','일자','접수일','문의일','date'],
+  name:['이름','성함','고객명','고객','성명','name'],
+  phone:['연락처','전화','휴대폰','핸드폰','번호','phone','tel'],
+  channel:['유입','경로','채널','매체','광고','source'],
+  memo:['메모','상담내용','문의내용','내용','비고','특이','memo'],
+  result:['결과','콜결과','상태','result'],
+  booking:['예약일','예약','booking']
+};
+var COL_LABEL = {date:'날짜', name:'이름', phone:'연락처', channel:'유입경로', memo:'메모', result:'결과', booking:'예약일'};
+var FALLBACK_MAP = {date:0, name:1, phone:2, channel:3, memo:4, result:5, booking:6};
+
+function parseCSV(text){
+  var rows = [], row = [], field = '', inQ = false, i = 0;
+  text = String(text == null ? '' : text).replace(/^\uFEFF/, '');
+  while(i < text.length){
+    var ch = text.charAt(i);
+    if(inQ){
+      if(ch === '"'){
+        if(text.charAt(i + 1) === '"'){ field += '"'; i += 2; continue; }
+        inQ = false; i++; continue;
+      }
+      field += ch; i++; continue;
+    }
+    if(ch === '"'){ inQ = true; i++; continue; }
+    if(ch === ','){ row.push(field); field = ''; i++; continue; }
+    if(ch === '\r'){ i++; continue; }
+    if(ch === '\n'){ row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+    field += ch; i++;
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+function detectColumns(header){
+  var map = {}, cells = (header || []).map(function(h){ return String(h == null ? '' : h).trim().toLowerCase(); });
+  Object.keys(COL_WORDS).forEach(function(key){
+    for(var i = 0; i < cells.length; i++){
+      var cell = cells[i];
+      if(!cell) continue;
+      var hit = COL_WORDS[key].some(function(word){ return cell.indexOf(word) >= 0; });
+      if(hit){ map[key] = i; return; }
+    }
+  });
+  return map;
+}
+function formatPhone(v){
+  var d = digits(v);
+  if(!d) return '';
+  if(d.length === 8) return d.replace(/(\d{4})(\d{4})/, '$1-$2');
+  if(d.length === 9) return d.replace(/(\d{2})(\d{3})(\d{4})/, '$1-$2-$3');
+  if(d.length === 10) return d.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  if(d.length === 11) return d.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  return d;
+}
+function leadsFromRows(rows, map, headerIndex){
+  var out = [];
+  rows.forEach(function(r, idx){
+    if(idx <= headerIndex) return;
+    function cell(k){ var p = map[k]; if(p == null) return ''; var v = r[p]; return String(v == null ? '' : v).trim(); }
+    var date = cell('date'), name = cell('name'), rawPhone = cell('phone');
+    var channel = cell('channel'), memo = cell('memo'), result = cell('result'), booking = cell('booking');
+    if(!name && !digits(rawPhone)) return;
+    var phone = formatPhone(rawPhone);
+    var key = 'sheet:' + JSON.stringify([date, name, digits(phone)]) + ':' + idx;
+    out.push({
+      key: key, name: name, phone: phone, date: date, channel: channel,
+      isMeta: /인스타|메타|meta|페이스북|facebook|sns|유튜브|블로그/i.test(channel),
+      memo: memo, result: result, booking: booking
+    });
+  });
+  return out;
+}
+function sheetCsvUrl(){
+  var s = String(cfg.sheetUrl || '').trim();
+  if(!s) return '';
+  var gid = (s.match(/[#&?]gid=([0-9]+)/) || [])[1] || '';
+  var published = s.match(/\/spreadsheets\/d\/e\/([A-Za-z0-9_-]+)/);
+  if(published) return 'https://docs.google.com/spreadsheets/d/e/' + published[1] + '/pub?output=csv' + (gid ? '&gid=' + gid : '');
+  var found = s.match(/\/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
+  if(!found && /^[A-Za-z0-9_-]{20,}$/.test(s)) found = [s, s];
+  if(!found){
+    if(/^https?:\/\//.test(s) && /(gviz|tqx=out:csv|output=csv|format=csv)/.test(s)) return s;
+    return '';
+  }
+  var url = 'https://docs.google.com/spreadsheets/d/' + found[1] + '/gviz/tq?tqx=out:csv';
+  var tab = String(cfg.sheetName || '').trim();
+  if(tab) url += '&sheet=' + encodeURIComponent(tab);
+  else if(gid) url += '&gid=' + gid;
+  return url;
+}
+async function fetchSheetLeads(){
+  var url = sheetCsvUrl();
+  if(!url) throw new Error('시트 주소를 확인해 주세요. (예: https://docs.google.com/spreadsheets/d/…/edit)');
+  var res;
+  try{
+    res = await fetch(url, {redirect:'follow'});
+  }catch(e){
+    throw new Error('시트에 접속하지 못했습니다. 네트워크와 시트 공유 설정을 확인해 주세요.');
+  }
+  if(!res.ok) throw new Error('시트를 불러오지 못했습니다 (HTTP ' + res.status + '). "링크가 있는 모든 사용자 · 뷰어"로 공유되어 있는지 확인해 주세요.');
+  var text = await res.text();
+  var head = text.slice(0, 400).toLowerCase();
+  if(head.indexOf('<html') >= 0 || head.indexOf('<!doctype') >= 0) throw new Error('시트가 공개되어 있지 않습니다. 시트 공유를 "링크가 있는 모든 사용자 · 뷰어"로 바꿔 주세요.');
+  var rows = parseCSV(text).filter(function(r){ return r.some(function(c){ return String(c == null ? '' : c).trim(); }); });
+  if(!rows.length) throw new Error('시트에서 데이터를 찾지 못했습니다.');
+  var headerIndex = -1, map = null, best = 0;
+  for(var i = 0; i < Math.min(rows.length, 8); i++){
+    var cand = detectColumns(rows[i]);
+    var score = Object.keys(cand).length;
+    if(score > best && score >= 2){ best = score; headerIndex = i; map = cand; }
+  }
+  var assumed = false;
+  if(!map){ headerIndex = -1; map = Object.assign({}, FALLBACK_MAP); assumed = true; }
+  var list = leadsFromRows(rows, map, headerIndex);
+  if(!list.length) throw new Error('시트에 읽을 수 있는 행이 없습니다. 열 구성을 확인해 주세요.');
+  var cols = Object.keys(map).map(function(k){ return COL_LABEL[k]; }).filter(Boolean);
+  return {leads: list, cols: cols, assumed: assumed, url: url};
+}
+function loadLeadsForMode(){
+  if(isSheet()){
+    var cache = readJSON(K.sheet, null);
+    leads = (cache && Array.isArray(cache.leads)) ? cache.leads : [];
+  }else{
+    leads = readJSON(K.leads, []);
+  }
+}
+
+async function remoteCalls(){
+  var res = await fetch(apiBase() + '/api/calls', {headers:{Accept:'application/json'}});
+  if(!res.ok) throw new Error('상담 목록을 불러오지 못했습니다 (' + res.status + ')');
+  var data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+async function remoteSave(data){
+  var res = await fetch(apiBase() + '/api/calls', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  if(!res.ok){
+    if(res.status === 409) throw new Error('기록이 이미 저장되었거나 변경됐습니다. 목록에서 다시 선택해 주세요.');
+    if(res.status === 400) throw new Error('전화번호 형식을 확인해 주세요.');
+    throw new Error('저장하지 못했습니다. 다시 시도해 주세요. (' + res.status + ')');
+  }
+  return true;
+}
+async function remoteLeads(params){
+  var res = await fetch(apiBase() + '/api/leads?' + params.toString(), {headers:{Accept:'application/json'}});
+  var data = await res.json().catch(function(){ return {}; });
+  if(!res.ok) throw new Error(data.error || '문의를 불러오지 못했습니다.');
+  return data;
+}
+
+/* ---------- 상담 불러오기 ---------- */
+async function loadCalls(){
+  if(isRemote()){
+    try{
+      var rows = await remoteCalls();
+      calls = rows.map(function(r){
+        var local = calls.find(function(c){ return c.id === r.id; });
+        var copy = Object.assign({}, r);
+        if(local && local.callback_at && !copy.callback_at) copy.callback_at = local.callback_at;
+        return copy;
+      });
+      updateModeUI();
+      render();
+      return true;
+    }catch(e){
+      flash(e.message || '상담 목록을 불러오지 못했습니다.', true);
+      render();
+      return false;
+    }
+  }
+  calls = readJSON(K.calls, []);
+  render();
+  return true;
+}
+
+/* ---------- 상담원 선택 채우기 ---------- */
+function fillAgentSelects(){
+  var keepForm = $('agent').value, keepFilter = $('filterAgent').value;
+  $('agent').replaceChildren.apply($('agent'), agents.map(function(a){ return new Option(a, a); }));
+  $('filterAgent').replaceChildren(new Option('전체 담당', ''), ...agents.map(function(a){ return new Option(a, a); }));
+  if(agents.indexOf(keepForm) >= 0) $('agent').value = keepForm;
+  $('filterAgent').value = agents.indexOf(keepFilter) >= 0 ? keepFilter : '';
+}
+function fillStaticSelects(){
+  STATES.forEach(function(s){ $('state').add(new Option(s, s)); });
+  KINDS.forEach(function(k){ $('kind').add(new Option(k, k)); });
+}
+
+/* ---------- 상담 목록 ---------- */
+function callSearchText(c){
+  return [c.lead_name, c.name, c.phone, c.memo, c.agent, c.kind, c.lead_channel, c.channel, c.state]
+    .filter(Boolean).join(' ').toLowerCase();
+}
+function matchesQuery(c, q){
+  if(!q) return true;
+  var s = q.trim().toLowerCase();
+  if(!s) return true;
+  if(callSearchText(c).indexOf(s) >= 0) return true;
+  var d = digits(s);
+  return d.length >= 3 && digits(c.phone).indexOf(d) >= 0;
+}
+function sortCalls(list){
+  return list.slice().sort(function(a, b){
+    var da = dueInfo(a), db = dueInfo(b);
+    if(da.rank !== db.rank) return da.rank - db.rank;
+    if(da.rank === 2 && a.callback_at && b.callback_at) return new Date(a.callback_at) - new Date(b.callback_at);
+    return new Date(b.created || 0) - new Date(a.created || 0);
+  });
+}
+function callName(c){ return c.lead_name || c.name || '이름 미기재'; }
+
+function renderStats(){
+  var today = dayKey(Date.now());
+  var todays = calls.filter(function(c){ return dayKey(c.created) === today; });
+  var due = calls.filter(function(c){ var d = dueInfo(c); return d.rank === 0 || d.rank === 1; });
+  $('today').textContent = todays.length;
+  $('pending').textContent = calls.filter(function(c){ return c.state === '콜백 대기'; }).length;
+  $('done').textContent = todays.filter(function(c){ return c.state === '완료'; }).length;
+  $('dueCount').textContent = due.length;
+
+  var overdue = calls.filter(function(c){ return dueInfo(c).rank === 0; }).length;
+  var soon = calls.filter(function(c){ return dueInfo(c).rank === 1; }).length;
+  var banner = $('dueBanner');
+  if(!overdue && !soon){ banner.hidden = true; return; }
+  banner.hidden = false;
+  banner.className = 'alert' + (overdue ? '' : ' soon-only');
+  var bits = [];
+  if(overdue) bits.push('콜백 예정 시각이 지난 상담 ' + overdue + '건');
+  if(soon) bits.push('30분 내 콜백 ' + soon + '건');
+  $('dueText').textContent = bits.join(' · ') + '이 있습니다.';
+}
+
+function renderList(){
+  var list = $('list');
+  list.replaceChildren();
+  var q = $('search').value, state = $('filter').value, ag = $('filterAgent').value;
+  var found = sortCalls(calls.filter(function(c){
+    if(state && c.state !== state) return false;
+    if(ag && c.agent !== ag) return false;
+    return matchesQuery(c, q);
+  }));
+
+  $('listCount').textContent = (found.length === calls.length ? calls.length + '건' : found.length + ' / ' + calls.length + '건');
+
+  if(!found.length){
+    list.append(el('div', 'empty', calls.length ? '조건에 맞는 상담이 없습니다.' : '첫 상담을 접수하면 이곳에 표시됩니다.'));
+    return;
+  }
+
+  found.forEach(function(c){
+    var d = dueInfo(c);
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'row' + (d.cls ? ' ' + d.cls : '');
+    var body = el('div');
+    body.append(el('strong', null, callName(c) + ' · ' + (c.phone || '번호 없음')));
+    var small = el('small', null, [
+      c.lead_channel || c.channel,
+      c.agent,
+      c.kind,
+      fmtDateTime(c.created)
+    ].filter(Boolean).join(' · '));
+    body.append(small);
+    if(c.memo){
+      var memo = el('small', null, c.memo.replace(/\s+/g, ' ').slice(0, 120));
+      memo.style.color = '#7b8f9b';
+      body.append(memo);
+    }
+    var right = el('div');
+    right.style.cssText = 'flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px';
+    if(d.label){
+      var cb = el('span', 'badge ' + (d.cls === 'urgent' ? 'due' : d.cls === 'soon' ? 'soon' : 'soft'), d.label);
+      right.append(cb);
+    }
+    var stateBadge = el('span', 'badge' + (c.state === '완료' ? ' done' : ''), c.state || '접수');
+    right.append(stateBadge);
+    b.append(body, right);
+    b.onclick = function(){ openCall(c); };
+    list.append(b);
+  });
+}
+
+function render(){ renderStats(); renderList(); updateDataCounts(); }
+
+/* ---------- 폼 ---------- */
+function setLeadBar(l){
+  var bar = $('leadBar');
+  if(!l){ bar.classList.remove('on'); $('leadBarText').textContent = ''; return; }
+  bar.classList.add('on');
+  $('leadBarText').textContent = '문의함 연결 · ' + (l.name || '이름 미기재') + ' · ' + (l.phone || '') + (l.channel ? ' · ' + l.channel : '');
+}
+function toggleCallback(){
+  $('callbackWrap').classList.toggle('on', $('state').value === '콜백 대기');
+}
+function resetForm(){
+  leadDraft = null; selected = null; draftId = uid();
+  $('form').reset();
+  fillAgentSelects();
+  $('title').textContent = '상담 접수';
+  setLeadBar(null);
+  $('dupNotice').classList.remove('on');
+  $('callbackWrap').classList.remove('on');
+  flash('');
+}
+function openCall(c){
+  leadDraft = null;
+  selected = Object.assign({}, c);
+  setLeadBar(null);
+  $('name').value = c.lead_name || c.name || '';
+  $('phone').value = c.phone || '';
+  $('agent').value = agents.indexOf(c.agent) >= 0 ? c.agent : agents[0];
+  $('kind').value = KINDS.indexOf(c.kind) >= 0 ? c.kind : '기타';
+  $('state').value = STATES.indexOf(c.state) >= 0 ? c.state : '접수';
+  $('channel').value = c.lead_channel || c.channel || '';
+  $('memo').value = c.memo || '';
+  $('callback').value = toLocalInput(c.callback_at);
+  $('title').textContent = '상담 상세';
+  toggleCallback();
+  checkDuplicate();
+  $('formPanel').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function startFromLead(l){
+  resetForm();
+  leadDraft = l;
+  setLeadBar(l);
+  $('name').value = l.name || '';
+  $('phone').value = l.phone || '';
+  $('channel').value = l.channel || '';
+  $('memo').value = [l.memo, l.result && '기존 콜결과 · ' + l.result, l.booking && '예약일 · ' + l.booking]
+    .filter(Boolean).join('\n').slice(0, 2000);
+  $('state').value = '콜백 대기';
+  toggleCallback();
+  $('title').textContent = (l.name || '광고 문의') + ' · 상담 접수';
+  checkDuplicate();
+  $('formPanel').scrollIntoView({behavior:'smooth', block:'center'});
+  $('phone').focus({preventScroll:true});
+}
+function checkDuplicate(){
+  var box = $('dupNotice');
+  var key = phoneKey($('phone').value);
+  var foundCall = key.length >= 9 ? calls.find(function(c){
+    return phoneKey(c.phone) === key && (!selected || c.id !== selected.id);
+  }) : null;
+  if(foundCall){
+    box.textContent = '이미 접수된 번호입니다 — ' + callName(foundCall) + ' · ' + (foundCall.agent || '') + ' · ' + fmtDateTime(foundCall.created);
+    box.classList.add('on');
+  }else{
+    box.classList.remove('on');
+    box.textContent = '';
+  }
+}
+
+/* ---------- 저장 ---------- */
+async function saveCurrent(){
+  var phone = $('phone').value.trim();
+  var d = digits(phone);
+  if(d.length < 9 || d.length > 12){
+    flash('전화번호를 숫자 9~12자리로 입력해 주세요.', true);
+    $('phone').focus();
+    return;
+  }
+  var data = {
+    phone: phone,
+    lead_name: $('name').value.trim(),
+    agent: $('agent').value,
+    kind: $('kind').value,
+    state: $('state').value,
+    memo: $('memo').value.trim(),
+    lead_channel: $('channel').value.trim(),
+    callback_at: $('state').value === '콜백 대기' ? fromLocalInput($('callback').value) : '',
+    id: selected ? selected.id : draftId,
+    rev: selected ? (selected.rev || 0) : 0
+  };
+  if(leadDraft){
+    data.lead_key = leadDraft.key;
+    if(!data.lead_name) data.lead_name = leadDraft.name || '';
+    if(!data.lead_channel) data.lead_channel = leadDraft.channel || '';
+  }
+
+  var dup = calls.find(function(c){
+    return phoneKey(c.phone) === phoneKey(data.phone) && c.id !== data.id;
+  });
+  if(dup && !selected){
+    if(!window.confirm('이미 접수된 번호입니다 (' + callName(dup) + '). 새 상담으로 한 건 더 저장할까요?')) return;
+  }
+
+  $('save').disabled = true;
+  try{
+    if(isRemote()){
+      await remoteSave(data);
+      var idx = calls.findIndex(function(c){ return c.id === data.id; });
+      var merged = Object.assign({}, data, {updated:new Date().toISOString()});
+      if(idx >= 0){ merged.created = calls[idx].created; calls[idx] = merged; } else { merged.created = new Date().toISOString(); calls.push(merged); }
+      localStorage.setItem(K.calls, JSON.stringify(calls));
+      flash('상담을 저장했습니다.');
+    }else{
+      var i = calls.findIndex(function(c){ return c.id === data.id; });
+      var rec = Object.assign({}, data, {updated:new Date().toISOString()});
+      if(i >= 0){
+        rec.created = calls[i].created;
+        if(leadDraft) { rec.lead_key = calls[i].lead_key || leadDraft.key; }
+        calls[i] = rec;
+      }else{
+        rec.created = new Date().toISOString();
+        rec.rev = 0;
+        calls.push(rec);
+      }
+      if(!writeJSON(K.calls, calls)) return;
+      flash('상담을 저장했습니다.');
+    }
+    resetForm();
+    render();
+    refreshFeed();
+  }catch(e){
+    flash(e.message || '저장하지 못했습니다.', true);
+  }finally{
+    $('save').disabled = false;
+  }
+}
+
+/* ---------- 문의함 ---------- */
+function leadRegistered(l){
+  return calls.find(function(c){
+    if(c.lead_key && l.key && c.lead_key === l.key) return true;
+    var k = phoneKey(l.phone);
+    return k.length >= 9 && phoneKey(c.phone) === k;
+  });
+}
+function filteredLeads(){
+  var source = $('feedSource').value;
+  var q = $('leadSearch').value.trim().toLowerCase();
+  var qd = digits(q);
+  return leads.filter(function(l){
+    if(source === 'sheet' && l.isMeta) return false;
+    if(source === 'meta' && !l.isMeta) return false;
+    if(source === 'unhandled' && leadRegistered(l)) return false;
+    if(!q) return true;
+    var hay = [l.name, l.phone, l.channel, l.memo, l.result, l.booking].filter(Boolean).join(' ').toLowerCase();
+    if(hay.indexOf(q) >= 0) return true;
+    return qd.length >= 3 && digits(l.phone).indexOf(qd) >= 0;
+  });
+}
+function feedLine(l){
+  var saved = leadRegistered(l);
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'row';
+  var body = el('div');
+  body.append(el('strong', null, [l.name || '이름 미기재', l.phone].filter(Boolean).join(' · ')));
+  var detail = el('small', null, [l.channel || '시트', l.date, l.result, l.booking && ('예약 ' + l.booking)].filter(Boolean).join('  /  '));
+  body.append(detail);
+  if(l.memo){
+    var memo = el('small', null, String(l.memo).replace(/\s+/g, ' ').slice(0, 140));
+    memo.style.color = '#7b8f9b';
+    body.append(memo);
+  }
+  var tag = el('span', 'badge' + (saved ? ' new' : ' soft'), saved ? '접수됨' : '접수하기');
+  b.append(body, tag);
+  b.onclick = function(){ saved ? openCall(saved) : startFromLead(l); };
+  return b;
+}
+function renderFeed(){
+  var rows = filteredLeads();
+  var pages = Math.max(1, Math.ceil(rows.length / FEED_SIZE));
+  if(feedPage >= pages) feedPage = pages - 1;
+  var slice = rows.slice(feedPage * FEED_SIZE, feedPage * FEED_SIZE + FEED_SIZE);
+  var box = $('feedRows');
+  box.replaceChildren();
+  if(!slice.length){
+    box.append(el('div', 'empty', leads.length ? '조건에 맞는 문의가 없습니다.' : '문의가 없습니다. 설정 → 데모 데이터 불러오기로 화면을 확인할 수 있습니다.'));
+  }else{
+    slice.forEach(function(l){ box.append(feedLine(l)); });
+  }
+  $('prevPage').disabled = feedPage <= 0;
+  $('nextPage').disabled = feedPage >= pages - 1;
+  $('feedPageInfo').textContent = rows.length + '건 · ' + (feedPage + 1) + '/' + pages + '쪽';
+}
+
+async function refreshFeed(force){
+  var seq = ++feedSeq;
+  var status = $('feedStatus');
+  if(isSheet()){
+    if(!sheetCsvUrl()){
+      status.textContent = '시트 주소가 설정되지 않았습니다. 설정에서 Google 시트 링크를 입력해 주세요.';
+      renderFeed();
+      return;
+    }
+    var cache = readJSON(K.sheet, null);
+    if(leads.length && cache && cache.at){
+      status.textContent = 'Google 시트 · ' + leads.length + '건 · 최근 동기화 ' + fmtTime(cache.at) + (force ? ' · 동기화 중…' : '');
+      renderFeed();
+      if(!force && Date.now() - cache.at < 60000) return;
+    }else{
+      status.textContent = '시트 연결 중…';
+    }
+    try{
+      var sheetData = await fetchSheetLeads();
+      if(seq !== feedSeq) return;
+      leads = sheetData.leads;
+      writeJSON(K.sheet, {url: cfg.sheetUrl, sheet: cfg.sheetName, at: Date.now(), cols: sheetData.cols, assumed: sheetData.assumed, leads: leads});
+      status.textContent = 'Google 시트 연결 · ' + leads.length + '건 · 최근 동기화 ' + fmtTime(Date.now()) + (sheetData.assumed ? ' · 기본 열 순서로 읽음' : '');
+      renderFeed();
+      renderStats();
+      updateDataCounts();
+    }catch(e3){
+      if(seq !== feedSeq) return;
+      renderFeed();
+      var extra = leads.length ? ' · 최근 동기화 ' + fmtTime(cache && cache.at ? cache.at : Date.now()) + ' 목록 유지' : '';
+      status.textContent = (e3.message || '시트를 불러오지 못했습니다.') + extra;
+    }
+    return;
+  }
+  if(isRemote()){
+    var params = new URLSearchParams({source: $('feedSource').value === 'meta' ? 'meta' : ($('feedSource').value === 'sheet' || $('feedSource').value === 'unhandled') ? 'sheet' : $('feedSource').value, q: $('leadSearch').value, offset: String(feedPage)});
+    try{
+      var data = await remoteLeads(params);
+      if(seq !== feedSeq) return;
+      var items = data.rows || [];
+      leads = items.map(function(r){ return Object.assign({remote:true}, r); });
+      var box = $('feedRows');
+      box.replaceChildren();
+      items.forEach(function(r){ box.append(feedLine(r)); });
+      if(!items.length) box.append(el('div', 'empty', '표시할 문의가 없습니다.'));
+      $('prevPage').disabled = feedPage <= 0;
+      $('nextPage').disabled = !data.next;
+      $('feedPageInfo').textContent = (data.total != null ? '총 ' + Number(data.total).toLocaleString() + '건' : items.length + '건');
+      status.textContent = '최근 조회 ' + fmtTime(data.time || Date.now()) + ' · 30초마다 갱신';
+    }catch(e){
+      if(seq === feedSeq) status.textContent = (e.message || '조회 실패') + ' · 최근 성공한 목록을 유지합니다.';
+    }
+    return;
+  }
+  status.textContent = '이 브라우저에 저장된 문의 ' + leads.length + '건 · 최근 확인 ' + fmtTime(Date.now());
+  renderFeed();
+}
+
+/* ---------- 모드 표시 ---------- */
+function updateModeUI(){
+  var remote = isRemote(), sheet = isSheet();
+  $('modeChip').textContent = remote ? '원격 API' : sheet ? 'Google 시트' : '로컬 저장';
+  $('connBadge').textContent = remote ? '원격 서버 연결' : sheet ? 'Google 시트 연결' : 'KT 회선 미연결';
+  $('storageNote').textContent = remote ? '원격 API(' + apiBase() + ')에 저장됩니다.' : sheet ? '문의는 Google 시트에서 불러오고, 상담은 이 브라우저에 저장됩니다.' : '브라우저(localStorage)에 저장됩니다.';
+  $('metaSettings').hidden = !remote;
+}
+function updateDataCounts(){
+  $('dataCounts').textContent = '상담 ' + calls.length + '건 · 문의 ' + leads.length + '건 저장됨';
+}
+
+/* ---------- 설정 모달 ---------- */
+function openSettings(){
+  var grid = $('agentGrid');
+  grid.replaceChildren();
+  agents.forEach(function(name, i){
+    var wrap = el('div');
+    var lab = el('label', null, '상담원 ' + (i + 1));
+    lab.setAttribute('for', 'agentName' + i);
+    var inp = document.createElement('input');
+    inp.id = 'agentName' + i;
+    inp.value = name;
+    inp.maxLength = 20;
+    inp.placeholder = DEFAULT_AGENTS[i];
+    wrap.append(lab, inp);
+    grid.append(wrap);
+  });
+  document.querySelectorAll('input[name="mode"]').forEach(function(r){ r.checked = r.value === cfg.mode; });
+  $('sheetUrl').value = cfg.sheetUrl || '';
+  $('sheetName').value = cfg.sheetName || '';
+  $('sheetResult').textContent = '';
+  $('remoteBase').value = cfg.remoteBase || '';
+  toggleRemoteWrap();
+  $('remoteResult').textContent = '';
+  updateDataCounts();
+  $('settingsModal').hidden = false;
+}
+function closeSettings(){ $('settingsModal').hidden = true; }
+function toggleRemoteWrap(){
+  var mode = document.querySelector('input[name="mode"]:checked');
+  var value = mode ? mode.value : 'local';
+  $('remoteWrap').classList.toggle('on', value === 'remote');
+  $('sheetWrap').classList.toggle('on', value === 'sheet');
+}
+function saveSettings(){
+  var next = [];
+  for(var i = 0; i < 5; i++){
+    var v = ($('agentName' + i).value || '').trim();
+    next.push(v || DEFAULT_AGENTS[i]);
+  }
+  agents = next;
+  writeJSON(K.agents, agents);
+  var mode = document.querySelector('input[name="mode"]:checked');
+  cfg.mode = mode ? mode.value : 'local';
+  cfg.remoteBase = $('remoteBase').value.trim();
+  cfg.sheetUrl = $('sheetUrl').value.trim();
+  cfg.sheetName = $('sheetName').value.trim();
+  if(cfg.mode === 'remote' && !cfg.remoteBase){
+    flash('원격 API 주소를 입력해 주세요.', true);
+    return;
+  }
+  if(cfg.mode === 'sheet' && !sheetCsvUrl()){
+    flash('Google 시트 링크를 확인해 주세요.', true);
+    return;
+  }
+  writeJSON(K.cfg, cfg);
+  fillAgentSelects();
+  updateModeUI();
+  loadLeadsForMode();
+  closeSettings();
+  render();
+  flash('설정을 저장했습니다.');
+  loadCalls().then(function(){ return refreshFeed(true); });
+}
+
+/* ---------- 데모 데이터 ---------- */
+function demoLeads(){
+  function label(offset){
+    var d = new Date(Date.now() - offset * 86400000);
+    return (d.getMonth() + 1) + '/' + d.getDate();
+  }
+  return [
+    {key:'demo-1', name:'김하늘', phone:'010-0000-1011', date:label(0), channel:'인콜', isMeta:false, memo:'리투오 상담 희망 · 12월 초 예약 가능한지 문의', result:'예약', booking:''},
+    {key:'demo-2', name:'이서준', phone:'010-0000-1022', date:label(0), channel:'네이버', isMeta:false, memo:'보톡스 가격 문의, 첫 방문 예정', result:'기타', booking:''},
+    {key:'demo-3', name:'박지안', phone:'010-0000-1033', date:label(0), channel:'메타', isMeta:true, memo:'인스타그램 광고 보고 문의 · 시술 종류 상담 요청', result:'상담중', booking:''},
+    {key:'demo-4', name:'최유진', phone:'010-0000-1044', date:label(1), channel:'인콜', isMeta:false, memo:'예약 변경 요청 · 다음 주로 옮기고 싶다고 함', result:'예약', booking:''},
+    {key:'demo-5', name:'정다온', phone:'010-0000-1055', date:label(1), channel:'메타', isMeta:true, memo:'11월 프로모션 문의 · 금액대 안내 요청', result:'기타', booking:''},
+    {key:'demo-6', name:'한수빈', phone:'010-0000-1066', date:label(1), channel:'직원지인', isMeta:false, memo:'지인 소개 예약 건 · 담당자 지정 요청', result:'예약', booking:''},
+    {key:'demo-7', name:'오세림', phone:'010-0000-1077', date:label(2), channel:'네이버', isMeta:false, memo:'사후 관리 문의 · 시술 후 붉은기 지속', result:'기타', booking:''},
+    {key:'demo-8', name:'임채원', phone:'010-0000-1088', date:label(2), channel:'인콜', isMeta:false, memo:'부재중 전화 · 콜백 요청', result:'기타', booking:''},
+    {key:'demo-9', name:'서지우', phone:'010-0000-1099', date:label(3), channel:'메타', isMeta:true, memo:'가격표 요청 · 카톡으로 안내 희망', result:'기타', booking:''},
+    {key:'demo-10', name:'문가온', phone:'010-0000-1100', date:label(3), channel:'인콜', isMeta:false, memo:'예약 확정 안내 요청', result:'예약', booking:''}
+  ];
+}
+function demoCalls(){
+  var t = Date.now();
+  return [
+    {id:'demo-call-1', rev:0, phone:'010-0000-1011', lead_name:'김하늘', lead_key:'demo-1', lead_channel:'인콜', agent:agents[0], kind:'예약 문의', state:'콜백 대기',
+     memo:'12월 초 리투오 가능 일정 확인 후 콜백. 고객은 오후 3시 이후 통화 가능.', callback_at:new Date(t - 25 * 60000).toISOString(), created:new Date(t - 2 * 3600000).toISOString(), updated:new Date(t - 60000).toISOString()},
+    {id:'demo-call-2', rev:0, phone:'010-0000-1044', lead_name:'최유진', lead_key:'demo-4', lead_channel:'인콜', agent:agents[1], kind:'예약 변경', state:'콜백 대기',
+     memo:'기존 예약일 변경 요청. 다음 주 수요일 오전 희망.', callback_at:new Date(t + 12 * 60000).toISOString(), created:new Date(t - 5 * 3600000).toISOString(), updated:new Date(t - 60000).toISOString()},
+    {id:'demo-call-3', rev:0, phone:'010-0000-1022', lead_name:'이서준', lead_key:'demo-2', lead_channel:'네이버', agent:agents[2], kind:'시술 문의', state:'완료',
+     memo:'보톡스 가격 안내 완료. 첫 방문 시 상담 후 결정하기로 함.', callback_at:'', created:new Date(t - 90 * 60000).toISOString(), updated:new Date(t - 40 * 60000).toISOString()},
+    {id:'demo-call-4', rev:0, phone:'010-0000-1077', lead_name:'오세림', lead_key:'demo-7', lead_channel:'네이버', agent:agents[3], kind:'사후 관리', state:'접수',
+     memo:'시술 후 붉은기 문의. 담당 실장 확인 후 연락 필요.', callback_at:'', created:new Date(t - 26 * 3600000).toISOString(), updated:new Date(t - 26 * 3600000).toISOString()}
+  ];
+}
+function loadDemo(force){
+  if(cfg.mode !== 'local'){
+    if(!window.confirm('데모 데이터는 로컬 저장 모드에서만 쓸 수 있습니다.\n로컬 모드로 바꿔 불러올까요? (시트/원격 설정은 저장되어 있습니다.)')) return;
+    cfg.mode = 'local';
+    writeJSON(K.cfg, cfg);
+    updateModeUI();
+  }
+  if(!force && (calls.length || leads.length)){
+    if(!window.confirm('현재 상담 ' + calls.length + '건, 문의 ' + leads.length + '건을 데모 데이터로 바꿉니다. 계속할까요?\n(내보내기로 먼저 백업할 수 있습니다.)')) return;
+  }
+  leads = demoLeads();
+  calls = demoCalls();
+  writeJSON(K.leads, leads);
+  writeJSON(K.calls, calls);
+  selected = null; leadDraft = null;
+  resetForm();
+  render();
+  refreshFeed();
+  flash('데모 데이터를 불러왔습니다. 실제 사용 전에 전체 초기화를 해 주세요.');
+}
+
+/* ---------- 내보내기 · 가져오기 ---------- */
+function exportData(){
+  var payload = {app:'yoonsflow-call-desk', version:1, exported_at:new Date().toISOString(), agents:agents, calls:calls, leads:leads};
+  var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'yoonsflow-call-desk-' + dayKey(Date.now()) + '.json';
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  flash('JSON 파일로 내보냈습니다.');
+}
+function importData(file){
+  var reader = new FileReader();
+  reader.onload = function(){
+    try{
+      var data = JSON.parse(String(reader.result));
+      if(!data || !Array.isArray(data.calls)) throw new Error('형식이 올바르지 않습니다.');
+      if(!window.confirm('상담 ' + data.calls.length + '건을 가져옵니다. 현재 목록에 합칩니다. 계속할까요?')) return;
+      var byId = {};
+      calls.forEach(function(c){ byId[c.id] = c; });
+      data.calls.forEach(function(c){ if(c && c.id) byId[c.id] = c; });
+      calls = Object.keys(byId).map(function(k){ return byId[k]; });
+      if(Array.isArray(data.leads) && data.leads.length){
+        var leadKeys = {};
+        leads.forEach(function(l){ leadKeys[l.key] = l; });
+        data.leads.forEach(function(l){ if(l && l.key) leadKeys[l.key] = l; });
+        leads = Object.keys(leadKeys).map(function(k){ return leadKeys[k]; });
+        writeJSON(K.leads, leads);
+      }
+      if(Array.isArray(data.agents) && data.agents.length){
+        agents = normalizeAgents(data.agents);
+        writeJSON(K.agents, agents);
+        fillAgentSelects();
+      }
+      writeJSON(K.calls, calls);
+      render();
+      refreshFeed();
+      flash('가져왔습니다. 상담 ' + calls.length + '건.');
+    }catch(e){
+      flash('가져오지 못했습니다: ' + (e.message || 'JSON 형식을 확인해 주세요.'), true);
+    }
+  };
+  reader.readAsText(file);
+}
+function wipeAll(){
+  if(!window.confirm('저장된 상담과 문의를 모두 지웁니다. 되돌릴 수 없습니다. 계속할까요?')) return;
+  calls = []; leads = [];
+  localStorage.removeItem(K.calls);
+  localStorage.removeItem(K.leads);
+  localStorage.removeItem(K.sheet);
+  agents = DEFAULT_AGENTS.slice();
+  writeJSON(K.agents, agents);
+  selected = null; leadDraft = null;
+  fillAgentSelects();
+  resetForm();
+  render();
+  refreshFeed();
+  flash('모든 데이터를 지웠습니다.');
+}
+
+/* ---------- 이벤트 ---------- */
+function bind(){
+  fillStaticSelects();
+  fillAgentSelects();
+
+  $('form').addEventListener('submit', function(e){ e.preventDefault(); saveCurrent(); });
+  $('reset').addEventListener('click', resetForm);
+  $('leadClear').addEventListener('click', function(){ leadDraft = null; setLeadBar(null); });
+  $('state').addEventListener('change', function(){
+    toggleCallback();
+    if($('state').value === '콜백 대기' && !$('callback').value){
+      $('callback').value = toLocalInput(roundNowPlus(30).toISOString());
+    }
+  });
+  $('phone').addEventListener('input', checkDuplicate);
+  $('phone').addEventListener('blur', checkDuplicate);
+
+  $('search').addEventListener('input', renderList);
+  $('filter').addEventListener('change', renderList);
+  $('filterAgent').addEventListener('change', renderList);
+
+  $('feedSource').addEventListener('change', function(){ feedPage = 0; refreshFeed(); });
+  var debounce;
+  $('leadSearch').addEventListener('input', function(){
+    clearTimeout(debounce);
+    debounce = setTimeout(function(){ feedPage = 0; refreshFeed(); }, 250);
+  });
+  $('reloadFeed').addEventListener('click', function(){ refreshFeed(true); });
+  $('nextPage').addEventListener('click', function(){ feedPage++; refreshFeed(); });
+  $('prevPage').addEventListener('click', function(){ feedPage = Math.max(0, feedPage - 1); refreshFeed(); });
+
+  $('dueJump').addEventListener('click', function(){
+    $('filter').value = '콜백 대기';
+    renderList();
+    $('list').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  $('openSettings').addEventListener('click', openSettings);
+  $('closeSettings').addEventListener('click', closeSettings);
+  $('cancelSettings').addEventListener('click', closeSettings);
+  $('saveSettings').addEventListener('click', saveSettings);
+  $('settingsModal').addEventListener('click', function(e){ if(e.target === $('settingsModal')) closeSettings(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !$('settingsModal').hidden) closeSettings(); });
+  document.querySelectorAll('input[name="mode"]').forEach(function(r){ r.addEventListener('change', toggleRemoteWrap); });
+
+  $('testSheet').addEventListener('click', async function(){
+    var out = $('sheetResult');
+    var savedUrl = cfg.sheetUrl, savedName = cfg.sheetName;
+    cfg.sheetUrl = $('sheetUrl').value.trim();
+    cfg.sheetName = $('sheetName').value.trim();
+    if(!sheetCsvUrl()){
+      out.textContent = '시트 링크를 확인해 주세요. (예: https://docs.google.com/spreadsheets/d/…/edit)';
+      cfg.sheetUrl = savedUrl; cfg.sheetName = savedName;
+      return;
+    }
+    out.textContent = '확인 중…';
+    try{
+      var data = await fetchSheetLeads();
+      out.textContent = data.leads.length + '건을 읽었습니다 · 열: ' + data.cols.join(', ') + (data.assumed ? ' (헤더 없음 · 기본 순서)' : '');
+    }catch(e){
+      out.textContent = e.message || '시트를 불러오지 못했습니다.';
+    }
+    cfg.sheetUrl = savedUrl; cfg.sheetName = savedName;
+  });
+
+  $('testRemote').addEventListener('click', async function(){
+    var base = $('remoteBase').value.trim().replace(/\/+$/, '');
+    if(!base){ $('remoteResult').textContent = '주소를 입력해 주세요.'; return; }
+    $('remoteResult').textContent = '확인 중…';
+    try{
+      var res = await fetch(base + '/api/calls', {headers:{Accept:'application/json'}});
+      $('remoteResult').textContent = res.ok ? '연결됐습니다 (HTTP ' + res.status + ').' : '응답이 왔지만 오류입니다 (HTTP ' + res.status + ').';
+    }catch(e){
+      $('remoteResult').textContent = '연결하지 못했습니다. 주소와 CORS 허용 여부를 확인해 주세요.';
+    }
+  });
+
+  $('demoLoad').addEventListener('click', function(){ loadDemo(false); });
+  $('footerDemo').addEventListener('click', function(){ loadDemo(false); });
+  $('exportBtn').addEventListener('click', exportData);
+  $('footerExport').addEventListener('click', exportData);
+  $('importBtn').addEventListener('click', function(){ $('importFile').click(); });
+  $('footerImport').addEventListener('click', function(){ $('importFile').click(); });
+  $('importFile').addEventListener('change', function(e){
+    var f = e.target.files && e.target.files[0];
+    if(f) importData(f);
+    e.target.value = '';
+  });
+  $('wipeBtn').addEventListener('click', wipeAll);
+
+  $('metaForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var btn = e.target.querySelector('button');
+    var base = apiBase();
+    if(!base){ $('metaResult').textContent = '원격 API 모드에서만 연결할 수 있습니다.'; return; }
+    btn.disabled = true;
+    try{
+      var r = await fetch(base + '/api/leads', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({form: $('formId').value.trim(), token: $('pageToken').value.trim()})});
+      var result = await r.json().catch(function(){ return {}; });
+      if(!r.ok) throw new Error(result.error || '연결 권한을 확인해 주세요.');
+      $('pageToken').value = '';
+      $('metaResult').textContent = '연결했습니다.';
+      $('feedSource').value = 'meta';
+      refreshFeed();
+    }catch(err){
+      $('metaResult').textContent = err.message;
+    }finally{
+      btn.disabled = false;
+    }
+  });
+}
+
+/* ---------- 시작 ---------- */
+function boot(){
+  bind();
+  loadLeadsForMode();
+  updateModeUI();
+  render();
+  refreshFeed();
+  if(isRemote()) loadCalls();
+}
+boot();
+})();
+</script>
+</body>
+</html>
