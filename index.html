@@ -75,6 +75,8 @@ h1{font-size:clamp(26px,3.4vw,34px);margin:0;letter-spacing:-.02em;font-weight:6
   padding:7px 14px;border-radius:999px;white-space:nowrap;font-weight:500;
 }
 .conn::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--point);display:inline-block;box-shadow:0 0 0 3px rgba(122,98,82,.18)}
+.conn.off{background:var(--terra-bg);border-color:#F3D8D0;color:var(--terra-ink)}
+.conn.off::before{background:var(--terra-ink);box-shadow:0 0 0 3px rgba(181,72,50,.18)}
 h2{font-size:17px;margin:0 0 16px;font-weight:600;color:var(--deep);letter-spacing:-.01em}
 p{color:var(--muted);margin:4px 0 18px}
 
@@ -226,7 +228,19 @@ button.danger:hover{background:var(--terra-bg)}
 .mode-row input{width:auto;accent-color:var(--point)}
 #sheetWrap,#remoteWrap{display:none;margin-top:10px;padding:15px 16px;background:#FAF6EF;border:1px solid var(--line);border-radius:var(--r-md)}
 #sheetWrap.on,#remoteWrap.on{display:block}
-#sheetResult,#remoteResult{display:block;margin-top:8px}
+#shareWrap{margin-top:10px;padding:15px 16px;background:#FAF6EF;border:1px solid var(--line);border-radius:var(--r-md)}
+#shareWrap input{background:#fff}
+.share-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.share-actions .hint{margin:0;font-size:12px}
+.share-help{margin-top:10px;font-size:12.5px;color:var(--muted)}
+.share-help summary{cursor:pointer;color:var(--point);font-weight:500;list-style:none}
+.share-help summary::-webkit-details-marker{display:none}
+.share-help summary::before{content:"+ ";font-weight:600}
+.share-help[open] summary::before{content:"– "}
+.share-help ol{margin:8px 0 0;padding-left:18px;line-height:1.7}
+.share-help code{font-size:11.5px;background:#F1EDE6;padding:1px 5px;border-radius:5px;color:var(--ink-2)}
+#shareResult,#sheetResult,#remoteResult{display:block;margin-top:8px}
+.form-actions{display:flex;align-items:center;gap:7px}
 .agent-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-top:10px}
 .agent-grid label{margin:0 0 4px;font-size:12.5px;color:var(--muted)}
 #dataCounts{margin-top:12px}
@@ -340,7 +354,10 @@ button.danger:hover{background:var(--terra-bg)}
     <section class="panel" id="formPanel">
       <div class="top" style="margin-bottom:8px">
         <h2 id="title" style="margin:0">상담 접수</h2>
-        <button id="reset" type="button" class="small">새 접수</button>
+        <div class="form-actions">
+          <button id="deleteCall" type="button" class="danger" hidden>삭제</button>
+          <button id="reset" type="button" class="small">새 접수</button>
+        </div>
       </div>
       <div class="leadbar" id="leadBar">
         <span id="leadBarText"></span>
@@ -392,6 +409,28 @@ button.danger:hover{background:var(--terra-bg)}
     <p class="hint" style="margin:0 0 4px">이름을 바꾸면 이 브라우저에 저장됩니다. 상담 목록의 담당 필터에도 바로 반영됩니다.</p>
     <div class="agent-grid" id="agentGrid"></div>
 
+    <h3>5석 실시간 공유 (Apps Script)</h3>
+    <p class="hint" style="margin:0 0 4px">5석 상담원이 새로 저장한 접수·콜백 상태·메모를 함께 봅니다. 주소를 넣으면 저장·수정·삭제가 공유 시트에 바로 반영되고 20초마다 새로고침합니다.</p>
+    <div id="shareWrap">
+      <label for="shareUrl">공유 저장소 (Apps Script 웹앱 URL)</label>
+      <input id="shareUrl" placeholder="https://script.google.com/macros/s/AKfy…/exec" autocomplete="off" spellcheck="false">
+      <div class="share-actions">
+        <button type="button" class="small" id="testShare">연결 테스트</button>
+        <span id="shareLive" class="hint" role="status"></span>
+      </div>
+      <p class="hint">비워 두면 이 브라우저에만 저장합니다(기존과 동일).</p>
+      <details class="share-help">
+        <summary>설치 방법</summary>
+        <ol>
+          <li>상담일지 스프레드시트 → 확장 프로그램 → Apps Script</li>
+          <li><code>apps-script/Code.gs</code> 내용을 붙여넣고 저장</li>
+          <li>배포 → 새 배포 → 웹 앱 · 실행: 나 · 액세스: 모든 사용자</li>
+          <li>나온 <code>/exec</code> 주소를 위에 붙여넣고 저장 → 연결 테스트</li>
+        </ol>
+      </details>
+      <span id="shareResult" class="hint" role="status"></span>
+    </div>
+
     <h3>저장 방식</h3>
     <div class="mode-row">
       <label><input type="radio" name="mode" value="sheet"> Google 시트 연결</label>
@@ -437,7 +476,7 @@ button.danger:hover{background:var(--terra-bg)}
 
 /* ---------- 상수 · 저장 키 ---------- */
 var $ = function(id){ return document.getElementById(id); };
-var K = {calls:'ydesk.calls.v1', leads:'ydesk.leads.v1', agents:'ydesk.agents.v1', cfg:'ydesk.cfg.v1', meta:'ydesk.meta.v1', sheet:'ydesk.sheet.v1'};
+var K = {calls:'ydesk.calls.v1', leads:'ydesk.leads.v1', agents:'ydesk.agents.v1', cfg:'ydesk.cfg.v1', meta:'ydesk.meta.v1', sheet:'ydesk.sheet.v1', outbox:'ydesk.outbox.v1'};
 var DEFAULT_AGENTS = ['천서희','강효은','이지은','문예지','신입'];
 var DEFAULT_SHEET = 'https://docs.google.com/spreadsheets/d/1KmzJPAI3BJppZEmuvpgQRmKO_kWC6BeAy6XLnRKUV-E/edit';
 var STATES = ['접수','콜백 대기','완료'];
@@ -455,7 +494,7 @@ function writeJSON(key, value){
 }
 function uid(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2); }
 
-var cfg = Object.assign({mode:'sheet', remoteBase:'', sheetUrl:DEFAULT_SHEET, sheetName:''}, readJSON(K.cfg, {}));
+var cfg = Object.assign({mode:'sheet', remoteBase:'', sheetUrl:DEFAULT_SHEET, sheetName:'', shareUrl:''}, readJSON(K.cfg, {}));
 var agents = normalizeAgents(readJSON(K.agents, null));
 var calls = readJSON(K.calls, []);
 var leads = [];
@@ -579,6 +618,286 @@ async function remoteLeads(params){
   var data = await res.json().catch(function(){ return {}; });
   if(!res.ok) throw new Error(data.error || '문의를 불러오지 못했습니다.');
   return data;
+}
+
+/* ---------- 5석 실시간 공유 (Apps Script) ---------- */
+var SHARE_POLL_MS = 20000;
+var shareTimer = null, shareBusy = false;
+var shareState = {ok:null, at:0, error:'', transport:'fetch', sig:''};
+
+function hasShare(){ return !!(cfg.shareUrl && String(cfg.shareUrl).trim()); }
+function shareEndpoint(){ return String(cfg.shareUrl || '').trim().replace(/\s+/g, ''); }
+function shareUrlWith(params){
+  var base = shareEndpoint();
+  var sep = base.indexOf('?') >= 0 ? '&' : '?';
+  var q = [];
+  Object.keys(params).forEach(function(k){ q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k])); });
+  q.push('_=' + Date.now());
+  return base + sep + q.join('&');
+}
+
+/* 공유 시트 ↔ 이 앱의 자료 모양 */
+function callFromShare(r){
+  r = r || {};
+  return {
+    id: String(r.id || uid()),
+    lead_key: String(r.lead_key || ''),
+    created: String(r.created_at || r.created || ''),
+    updated: String(r.updated_at || r.updated || ''),
+    lead_name: String(r.customer_name || r.lead_name || r.name || ''),
+    phone: String(r.phone || ''),
+    lead_channel: String(r.channel || r.lead_channel || ''),
+    agent: String(r.agent || ''),
+    kind: String(r.type || r.kind || ''),
+    state: String(r.status || r.state || '접수'),
+    callback_at: String(r.callback_at || ''),
+    memo: String(r.memo || ''),
+    shared: true
+  };
+}
+function callToShare(c){
+  return {
+    id: String(c.id || ''),
+    lead_key: String(c.lead_key || ''),
+    created_at: String(c.created || ''),
+    updated_at: String(c.updated || ''),
+    customer_name: String(c.lead_name || c.name || ''),
+    phone: String(c.phone || ''),
+    channel: String(c.lead_channel || c.channel || ''),
+    agent: String(c.agent || ''),
+    type: String(c.kind || ''),
+    status: String(c.state || ''),
+    callback_at: String(c.callback_at || ''),
+    memo: String(c.memo || '')
+  };
+}
+
+/* 읽기: fetch 가 막히면( CORS ) JSONP 로 한 번 더 시도합니다. */
+function shareJsonp(){
+  return new Promise(function(resolve, reject){
+    var cbName = 'ydeskShare_' + Math.random().toString(36).slice(2, 10);
+    var script = document.createElement('script');
+    var done = false, timer = null;
+    function finish(err, data){
+      if(done) return;
+      done = true;
+      if(timer) clearTimeout(timer);
+      try{ delete window[cbName]; }catch(e){ window[cbName] = undefined; }
+      if(script.parentNode) script.parentNode.removeChild(script);
+      if(err) reject(err); else resolve(data);
+    }
+    window[cbName] = function(data){ finish(null, data); };
+    timer = setTimeout(function(){ finish(new Error('공유 저장소 응답이 없습니다 (15초 시간 초과).')); }, 15000);
+    script.onerror = function(){ finish(new Error('공유 저장소에 연결하지 못했습니다. 주소와 배포 권한(모든 사용자)을 확인해 주세요.')); };
+    script.src = shareUrlWith({action:'list', callback:cbName});
+    document.head.appendChild(script);
+  });
+}
+function parseSharePayload(data){
+  if(!data || data.ok !== true) throw new Error((data && data.error) || '공유 저장소가 오류를 돌려줬습니다.');
+  return Array.isArray(data.calls) ? data.calls : [];
+}
+async function shareRead(){
+  var url = shareUrlWith({action:'list'});
+  var data = null;
+  try{
+    var res = await fetch(url, {method:'GET', redirect:'follow', cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    data = JSON.parse(await res.text());
+    shareState.transport = 'fetch';
+  }catch(e){
+    data = await shareJsonp();
+    shareState.transport = 'jsonp';
+  }
+  return parseSharePayload(data);
+}
+
+/* 쓰기: CORS 프리플라이트를 피하려고 text/plain 으로 JSON 을 보냅니다. */
+async function shareWrite(payload){
+  var res = await fetch(shareEndpoint(), {
+    method:'POST',
+    redirect:'follow',
+    cache:'no-store',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  });
+  var text = await res.text();
+  var data = null;
+  try{ data = JSON.parse(text); }
+  catch(e){
+    if(/^\s*</.test(text)) throw new Error('공유 저장소가 HTML 응답을 돌려줬습니다. 배포 액세스 권한을 "모든 사용자"로 바꿔 주세요.');
+    throw new Error('공유 저장소 응답을 읽지 못했습니다.');
+  }
+  if(!data || data.ok !== true){
+    var err = new Error((data && data.error) || '공유 저장소가 저장을 거부했습니다.');
+    err.shareRejected = true;
+    throw err;
+  }
+  return data;
+}
+
+/* 못 보낸 저장·삭제는 모아 두었다가 20초마다 다시 보냅니다. */
+function readOutbox(){ var list = readJSON(K.outbox, []); return Array.isArray(list) ? list : []; }
+function writeOutbox(list){ writeJSON(K.outbox, list.slice(-200)); }
+function outboxPut(item){
+  var list = readOutbox().filter(function(x){
+    if(item.action === 'delete') return !(x.action === 'delete' && x.id === item.id);
+    return !(x.action === 'upsert' && x.call && item.call && x.call.id === item.call.id);
+  });
+  item.at = new Date().toISOString();
+  list.push(item);
+  writeOutbox(list);
+}
+async function flushOutbox(){
+  var list = readOutbox();
+  if(!list.length) return true;
+  var remain = [], lastData = null;
+  for(var i = 0; i < list.length; i++){
+    var item = list[i];
+    try{
+      lastData = await shareWrite(item.action === 'delete' ? {action:'delete', id:item.id} : {action:'upsert', call:item.call});
+    }catch(e){
+      if(e && e.shareRejected){ flash(e.message, true); } else { remain.push(item); }
+    }
+  }
+  writeOutbox(remain);
+  if(lastData && Array.isArray(lastData.calls)) applyShareList(lastData.calls);
+  return remain.length === 0;
+}
+
+/* 공유 목록 반영 */
+function applyShareList(rows){
+  var outbox = readOutbox();
+  var deleting = {};
+  outbox.forEach(function(x){ if(x.action === 'delete') deleting[x.id] = true; });
+  var mapped = rows.map(callFromShare).filter(function(c){ return !deleting[c.id]; });
+  outbox.forEach(function(x){
+    if(x.action !== 'upsert' || !x.call) return;
+    var rec = callFromShare(x.call);
+    var at = mapped.findIndex(function(m){ return m.id === rec.id; });
+    if(at >= 0) mapped[at] = rec; else mapped.push(rec);
+  });
+  var sig = mapped.map(function(c){
+    return [c.id, c.updated, c.state, c.agent, c.phone, c.lead_name, c.memo, c.callback_at, c.kind, c.lead_channel, c.created].join('|');
+  }).sort().join('#');
+  calls = mapped;
+  if(sig === shareState.sig){ renderStats(); return; }
+  shareState.sig = sig;
+  render();
+  checkSelectedStale();
+}
+function checkSelectedStale(){
+  if(!selected) return;
+  var latest = calls.find(function(c){ return c.id === selected.id; });
+  if(!latest){ flash('이 상담은 다른 상담원이 삭제했습니다. 저장하면 다시 만들어집니다.', true); return; }
+  if(latest.updated && selected.updated && latest.updated !== selected.updated){
+    flash('다른 상담원이 이 상담을 수정했습니다. 목록에서 다시 열면 최신 내용을 볼 수 있습니다.', true);
+  }
+}
+
+/* 동기화 1회 */
+async function sharePoll(){
+  if(!hasShare() || shareBusy) return;
+  shareBusy = true;
+  try{
+    await flushOutbox();
+    applyShareList(await shareRead());
+    shareState.ok = true; shareState.error = ''; shareState.at = Date.now();
+  }catch(e){
+    shareState.ok = false; shareState.error = (e && e.message) || String(e);
+  }finally{
+    shareBusy = false;
+    updateShareUI();
+  }
+}
+async function sharePushCall(rec){
+  if(!hasShare()) return true;
+  try{
+    var data = await shareWrite({action:'upsert', call: callToShare(rec)});
+    if(data && Array.isArray(data.calls)) applyShareList(data.calls);
+    shareState.ok = true; shareState.error = ''; shareState.at = Date.now();
+    updateShareUI();
+    flash('상담을 저장하고 5석에 공유했습니다.');
+    return true;
+  }catch(e){
+    if(e && e.shareRejected){
+      shareState.ok = false; shareState.error = e.message; updateShareUI();
+      flash(e.message, true);
+      return false;
+    }
+    /* 응답을 읽지 못했어도 서버에는 반영됐을 수 있으니 읽기로 확인합니다. */
+    try{
+      var rows = await shareRead();
+      var found = rows.some(function(r){
+        return String(r.id) === String(rec.id) && String(r.updated_at || '') === String(rec.updated || '');
+      });
+      if(found){
+        applyShareList(rows);
+        shareState.ok = true; shareState.error = ''; shareState.at = Date.now(); updateShareUI();
+        flash('상담을 저장하고 5석에 공유했습니다.');
+        return true;
+      }
+    }catch(e2){ /* 읽기도 실패하면 아래에서 대기열로 */ }
+    outboxPut({action:'upsert', call: callToShare(rec)});
+    shareState.ok = false; shareState.error = (e && e.message) || '공유 저장소 연결 실패';
+    updateShareUI();
+    flash('이 브라우저에는 저장했습니다. 5석 공유는 20초마다 다시 시도합니다.', true);
+    return false;
+  }
+}
+async function shareDeleteCall(id){
+  if(!hasShare()) return true;
+  try{
+    var data = await shareWrite({action:'delete', id:id});
+    if(data && Array.isArray(data.calls)) applyShareList(data.calls);
+    shareState.ok = true; shareState.error = ''; shareState.at = Date.now();
+    updateShareUI();
+    flash('상담을 삭제하고 5석에 반영했습니다.');
+    return true;
+  }catch(e){
+    if(e && e.shareRejected){ flash(e.message, true); return false; }
+    outboxPut({action:'delete', id:id});
+    shareState.ok = false; shareState.error = (e && e.message) || '공유 저장소 연결 실패';
+    updateShareUI();
+    flash('이 브라우저에서 삭제했습니다. 5석 공유 반영은 20초마다 다시 시도합니다.', true);
+    return false;
+  }
+}
+function startShareTimer(){
+  if(shareTimer) clearInterval(shareTimer);
+  shareTimer = setInterval(function(){ if(!document.hidden) sharePoll(); }, SHARE_POLL_MS);
+}
+function stopShareTimer(){ if(shareTimer) clearInterval(shareTimer); shareTimer = null; }
+function resetShareRuntime(){
+  stopShareTimer();
+  shareState = {ok:null, at:0, error:'', transport:'fetch', sig:''};
+  updateModeUI();
+  if(hasShare()){ startShareTimer(); sharePoll(); }
+  else { loadCalls(); }
+}
+function updateShareUI(){
+  var chip = $('modeChip'), badge = $('connBadge'), live = $('shareLive');
+  if(!hasShare()){
+    if(chip) chip.textContent = isRemote() ? '원격 API' : isSheet() ? 'Google 시트' : '로컬 저장';
+    if(badge){ badge.className = 'conn'; badge.textContent = isRemote() ? '원격 서버 연결' : isSheet() ? 'Google 시트 연결' : '로컬 저장 모드'; }
+    if(live) live.textContent = '공유 저장소가 비어 있어 이 브라우저에만 저장합니다.';
+    return;
+  }
+  var pend = readOutbox().length;
+  if(chip) chip.textContent = '5석 공유';
+  if(badge){
+    badge.className = 'conn' + (shareState.ok === false ? ' off' : '');
+    badge.textContent = shareState.ok === false
+      ? '5석 공유 연결 확인 필요'
+      : '5석 실시간 공유 · ' + (shareState.at ? fmtTime(shareState.at) + ' 동기화' : '연결 중…');
+  }
+  if(live){
+    live.textContent = (shareState.ok === false
+        ? '연결 오류 · ' + shareState.error
+        : (shareState.at ? '최근 동기화 ' + fmtTime(shareState.at) : '아직 동기화 전'))
+      + (pend ? ' · 전송 대기 ' + pend + '건' : '')
+      + (shareState.transport === 'jsonp' ? ' · JSONP 읽기' : '');
+  }
 }
 
 /* ---------- Google 시트 (CSV) ---------- */
@@ -759,6 +1078,19 @@ function loadLeadsForMode(){
 
 /* ---------- 상담 불러오기 ---------- */
 async function loadCalls(){
+  if(hasShare()){
+    try{
+      applyShareList(await shareRead());
+      shareState.ok = true; shareState.error = ''; shareState.at = Date.now();
+    }catch(e){
+      shareState.ok = false; shareState.error = (e && e.message) || '공유 저장소를 불러오지 못했습니다.';
+      flash(shareState.error, true);
+      render();
+    }finally{
+      updateShareUI();
+    }
+    return shareState.ok === true;
+  }
   if(isRemote()){
     try{
       var rows = await remoteCalls();
@@ -914,6 +1246,7 @@ function toggleCallback(){
 function resetForm(){
   leadDraft = null; selected = null; draftId = uid();
   $('form').reset();
+  $('deleteCall').hidden = true;
   fillAgentSelects();
   $('title').textContent = '상담 접수';
   setLeadBar(null);
@@ -934,6 +1267,7 @@ function openCall(c){
   $('memo').value = c.memo || '';
   $('callback').value = toLocalInput(c.callback_at);
   $('title').textContent = '상담 상세';
+  $('deleteCall').hidden = false;
   toggleCallback();
   checkDuplicate();
   $('formPanel').scrollIntoView({behavior:'smooth', block:'center'});
@@ -1013,37 +1347,55 @@ async function saveCurrent(){
     if(!window.confirm('이미 접수된 번호입니다 (' + callName(dup) + '). 새 상담으로 한 건 더 저장할까요?')) return;
   }
 
+  var existing = calls.find(function(c){ return c.id === data.id; });
   $('save').disabled = true;
   try{
-    if(isRemote()){
+    // 공유 저장소가 설정되어 있으면 서버 저장은 Apps Script 가 맡고, 기존 원격 API는 거치지 않습니다.
+    if(!hasShare() && isRemote()){
       await remoteSave(data);
-      var idx = calls.findIndex(function(c){ return c.id === data.id; });
-      var merged = Object.assign({}, data, {updated:new Date().toISOString()});
-      if(idx >= 0){ merged.created = calls[idx].created; calls[idx] = merged; } else { merged.created = new Date().toISOString(); calls.push(merged); }
-      localStorage.setItem(K.calls, JSON.stringify(calls));
-      flash('상담을 저장했습니다.');
-    }else{
-      var i = calls.findIndex(function(c){ return c.id === data.id; });
-      var rec = Object.assign({}, data, {updated:new Date().toISOString()});
-      if(i >= 0){
-        rec.created = calls[i].created;
-        if(leadDraft) { rec.lead_key = calls[i].lead_key || leadDraft.key; }
-        calls[i] = rec;
-      }else{
-        rec.created = new Date().toISOString();
-        rec.rev = 0;
-        calls.push(rec);
-      }
-      if(!writeJSON(K.calls, calls)) return;
-      flash('상담을 저장했습니다.');
     }
+    var now = new Date().toISOString();
+    var rec = Object.assign({}, data, {updated: now});
+    if(existing){
+      rec.created = existing.created || now;
+      rec.rev = (existing.rev || 0) + 1;
+      if(!rec.lead_key && existing.lead_key) rec.lead_key = existing.lead_key;
+    }else{
+      rec.created = now;
+      rec.rev = 0;
+    }
+    var i = calls.findIndex(function(c){ return c.id === rec.id; });
+    if(i >= 0) calls[i] = rec; else calls.push(rec);
+    if(!writeJSON(K.calls, calls)) return;
     resetForm();
     render();
     refreshFeed();
+    flash('상담을 저장했습니다.');
+    if(hasShare()) await sharePushCall(rec);
   }catch(e){
     flash(e.message || '저장하지 못했습니다.', true);
   }finally{
     $('save').disabled = false;
+  }
+}
+
+/* ---------- 삭제 ---------- */
+async function deleteSelected(){
+  if(!selected){ flash('삭제할 상담을 목록에서 먼저 선택해 주세요.', true); return; }
+  var label = callName(selected) + (selected.phone ? ' · ' + selected.phone : '');
+  var msg = label + ' 상담을 삭제할까요?' + (hasShare() ? '\n5석 모두의 목록에서 사라집니다.' : '');
+  if(!window.confirm(msg)) return;
+  var id = selected.id;
+  $('deleteCall').disabled = true;
+  calls = calls.filter(function(c){ return c.id !== id; });
+  writeJSON(K.calls, calls);
+  resetForm();
+  render();
+  flash(hasShare() ? '삭제하고 5석에 반영하는 중…' : '상담을 삭제했습니다.');
+  try{
+    if(hasShare()) await shareDeleteCall(id);
+  }finally{
+    $('deleteCall').disabled = false;
   }
 }
 
@@ -1183,14 +1535,20 @@ async function refreshFeed(force){
 
 /* ---------- 모드 표시 ---------- */
 function updateModeUI(){
-  var remote = isRemote(), sheet = isSheet();
-  $('modeChip').textContent = remote ? '원격 API' : sheet ? 'Google 시트' : '로컬 저장';
-  $('connBadge').textContent = remote ? '원격 서버 연결' : sheet ? 'Google 시트 연결' : '로컬 저장 모드';
-  $('storageNote').textContent = remote ? '원격 API(' + apiBase() + ')에 저장됩니다.' : sheet ? '문의는 Google 시트에서 불러오고, 상담은 이 브라우저에 저장됩니다.' : '상담과 문의를 이 브라우저(localStorage)에 저장합니다.';
+  var share = hasShare(), remote = !share && isRemote(), sheet = isSheet();
+  $('modeChip').textContent = share ? '5석 공유' : remote ? '원격 API' : sheet ? 'Google 시트' : '로컬 저장';
+  $('connBadge').textContent = share ? '5석 실시간 공유' : remote ? '원격 서버 연결' : sheet ? 'Google 시트 연결' : '로컬 저장 모드';
+  $('storageNote').textContent = share
+    ? '상담은 5석 공유 저장소(Apps Script)에 저장되고 20초마다 새로고침합니다.'
+    : remote ? '원격 API(' + apiBase() + ')에 저장됩니다.'
+    : sheet ? '문의는 Google 시트에서 불러오고, 상담은 이 브라우저에 저장됩니다.'
+    : '상담과 문의를 이 브라우저(localStorage)에 저장합니다.';
   $('metaSettings').hidden = !remote;
+  updateShareUI();
 }
 function updateDataCounts(){
-  $('dataCounts').textContent = '상담 ' + calls.length + '건 · 문의 ' + leads.length + '건 저장됨';
+  var pend = readOutbox().length;
+  $('dataCounts').textContent = '상담 ' + calls.length + '건 · 문의 ' + leads.length + '건 저장됨' + (pend ? ' · 공유 전송 대기 ' + pend + '건' : '');
 }
 
 /* ---------- 설정 모달 ---------- */
@@ -1216,6 +1574,9 @@ function openSettings(){
   $('remoteBase').value = cfg.remoteBase || '';
   toggleRemoteWrap();
   $('remoteResult').textContent = '';
+  $('shareUrl').value = cfg.shareUrl || '';
+  $('shareResult').textContent = '';
+  updateShareUI();
   updateDataCounts();
   $('settingsModal').hidden = false;
 }
@@ -1239,12 +1600,18 @@ function saveSettings(){
   cfg.remoteBase = $('remoteBase').value.trim();
   cfg.sheetUrl = $('sheetUrl').value.trim();
   cfg.sheetName = $('sheetName').value.trim();
+  var prevShare = cfg.shareUrl || '';
+  cfg.shareUrl = $('shareUrl').value.trim();
   if(cfg.mode === 'remote' && !cfg.remoteBase){
     flash('원격 API 주소를 입력해 주세요.', true);
     return;
   }
   if(cfg.mode === 'sheet' && !sheetCsvUrl()){
     flash('Google 시트 링크를 확인해 주세요.', true);
+    return;
+  }
+  if(cfg.shareUrl && !/^https?:\/\//i.test(cfg.shareUrl)){
+    flash('공유 저장소 주소는 https://script.google.com/macros/s/…/exec 형식이어야 합니다.', true);
     return;
   }
   writeJSON(K.cfg, cfg);
@@ -1254,7 +1621,9 @@ function saveSettings(){
   closeSettings();
   render();
   flash('설정을 저장했습니다.');
-  loadCalls().then(function(){ return refreshFeed(true); });
+  if(cfg.shareUrl !== prevShare) resetShareRuntime();
+  else loadCalls();
+  refreshFeed(true);
 }
 
 /* ---------- 데모 데이터 ---------- */
@@ -1290,6 +1659,10 @@ function demoCalls(){
   ];
 }
 function loadDemo(force){
+  if(hasShare()){
+    flash('데모 데이터는 로컬 저장에서만 쓸 수 있습니다. 설정에서 공유 저장소를 비운 뒤 사용해 주세요.', true);
+    return;
+  }
   if(cfg.mode !== 'local'){
     if(!window.confirm('데모 데이터는 로컬 저장 모드에서만 쓸 수 있습니다.\n로컬 모드로 바꿔 불러올까요? (시트/원격 설정은 저장되어 있습니다.)')) return;
     cfg.mode = 'local';
@@ -1326,7 +1699,7 @@ function exportData(){
 }
 function importData(file){
   var reader = new FileReader();
-  reader.onload = function(){
+  reader.onload = async function(){
     try{
       var data = JSON.parse(String(reader.result));
       if(!data || !Array.isArray(data.calls)) throw new Error('형식이 올바르지 않습니다.');
@@ -1350,7 +1723,22 @@ function importData(file){
       writeJSON(K.calls, calls);
       render();
       refreshFeed();
-      flash('가져왔습니다. 상담 ' + calls.length + '건.');
+      if(hasShare()){
+        var pushed = 0, failed = 0;
+        for(var i = 0; i < data.calls.length; i++){
+          var item = data.calls[i];
+          if(!item || !item.id) continue;
+          try{ await shareWrite({action:'upsert', call: callToShare(item)}); pushed++; }
+          catch(err){
+            if(!(err && err.shareRejected)) outboxPut({action:'upsert', call: callToShare(item)});
+            failed++;
+          }
+        }
+        try{ applyShareList(await shareRead()); }catch(err2){ /* 폴링이 이어서 맞춥니다 */ }
+        flash('가져왔습니다. 상담 ' + calls.length + '건 · 5석 공유 ' + pushed + '건 반영' + (failed ? ' · ' + failed + '건은 20초마다 다시 시도' : ''));
+      }else{
+        flash('가져왔습니다. 상담 ' + calls.length + '건.');
+      }
     }catch(e){
       flash('가져오지 못했습니다: ' + (e.message || 'JSON 형식을 확인해 주세요.'), true);
     }
@@ -1358,11 +1746,15 @@ function importData(file){
   reader.readAsText(file);
 }
 function wipeAll(){
-  if(!window.confirm('저장된 상담과 문의를 모두 지웁니다. 되돌릴 수 없습니다. 계속할까요?')) return;
+  var msg = hasShare()
+    ? '이 브라우저에 저장된 상담·문의·설정을 지웁니다. 5석 공유 저장소의 상담은 지워지지 않고 다시 불러옵니다. 계속할까요?'
+    : '저장된 상담과 문의를 모두 지웁니다. 되돌릴 수 없습니다. 계속할까요?';
+  if(!window.confirm(msg)) return;
   calls = []; leads = [];
   localStorage.removeItem(K.calls);
   localStorage.removeItem(K.leads);
   localStorage.removeItem(K.sheet);
+  writeOutbox([]);
   agents = DEFAULT_AGENTS.slice();
   writeJSON(K.agents, agents);
   selected = null; leadDraft = null;
@@ -1370,7 +1762,13 @@ function wipeAll(){
   resetForm();
   render();
   refreshFeed();
-  flash('모든 데이터를 지웠습니다.');
+  if(hasShare()){
+    shareState.sig = '';
+    flash('이 브라우저 데이터를 지웠습니다. 5석 공유 상담을 다시 불러옵니다.');
+    sharePoll();
+  }else{
+    flash('모든 데이터를 지웠습니다.');
+  }
 }
 
 /* ---------- 이벤트 ---------- */
@@ -1381,6 +1779,8 @@ function bind(){
   $('form').addEventListener('submit', function(e){ e.preventDefault(); saveCurrent(); });
   $('save').addEventListener('click', function(e){ e.preventDefault(); saveCurrent(); });
   $('reset').addEventListener('click', resetForm);
+  $('deleteCall').addEventListener('click', deleteSelected);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden && hasShare()) sharePoll(); });
   $('leadClear').addEventListener('click', function(){ leadDraft = null; setLeadBar(null); });
   $('state').addEventListener('change', function(){
     toggleCallback();
@@ -1437,6 +1837,41 @@ function bind(){
       out.textContent = e.message || '시트를 불러오지 못했습니다.';
     }
     cfg.sheetUrl = savedUrl; cfg.sheetName = savedName;
+  });
+
+  $('testShare').addEventListener('click', async function(){
+    var out = $('shareResult');
+    var btn = this;
+    var url = $('shareUrl').value.trim();
+    if(!url){ out.textContent = 'Apps Script 웹앱 URL을 먼저 입력해 주세요.'; return; }
+    var saved = cfg.shareUrl;
+    cfg.shareUrl = url;
+    btn.disabled = true;
+    out.textContent = '확인 중… (읽기 → 쓰기 순서로 확인합니다)';
+    var rows = null;
+    try{
+      rows = await shareRead();
+      out.textContent = '읽기 확인 · 상담 ' + rows.length + '건 · 저장(쓰기) 확인 중…';
+    }catch(e){
+      out.textContent = '연결하지 못했습니다 · ' + ((e && e.message) || '주소와 배포 액세스 권한을 확인해 주세요.');
+      shareState.ok = false; shareState.error = (e && e.message) || '연결 실패';
+    }
+    if(rows){
+      try{
+        var ping = await shareWrite({action:'ping'});
+        out.textContent = '연결됐습니다 · 저장된 상담 ' + rows.length + '건 · 읽기/쓰기 모두 확인'
+          + (ping && ping.sheet ? ' (' + ping.sheet + ' 탭)' : '')
+          + (shareState.transport === 'jsonp' ? ' · JSONP 읽기' : '');
+        shareState.ok = true; shareState.error = ''; shareState.at = Date.now();
+      }catch(e2){
+        out.textContent = '읽기는 되지만 저장(쓰기)이 막혔습니다 · ' + ((e2 && e2.message) || '')
+          + ' — Apps Script 배포의 액세스 권한을 "모든 사용자"로 바꾸고 다시 배포해 주세요.';
+        shareState.ok = false; shareState.error = (e2 && e2.message) || '쓰기 실패';
+      }
+    }
+    cfg.shareUrl = saved;
+    btn.disabled = false;
+    updateShareUI();
   });
 
   $('testRemote').addEventListener('click', async function(){
@@ -1499,7 +1934,8 @@ function boot(){
   updateModeUI();
   render();
   refreshFeed();
-  if(isRemote()) loadCalls();
+  if(hasShare()){ startShareTimer(); loadCalls(); }
+  else if(isRemote()) loadCalls();
 }
 boot();
 })();

@@ -3,7 +3,7 @@
 병원 CS 센터(5석) 상담 접수·콜백 관리 웹앱. `index.html` 한 파일로 동작하는 정적 웹앱이라
 GitHub Pages, 사내 웹서버, 파일 직접 열기 어디서든 그대로 실행됩니다.
 
-- 라이브(예정): https://rlawndbs95-web.github.io/yoonsflow-call-desk/
+- 라이브: https://rlawndbs95-web.github.io/yoonsflow-/
 - 원본 앱: https://yoonsflow-call-desk.rlawndbs95.chatgpt.site/
 
 ## 이번에 추가된 것
@@ -16,6 +16,23 @@ GitHub Pages, 사내 웹서버, 파일 직접 열기 어디서든 그대로 실�
 | 문의함 레이아웃·통합 검색 | 목록 높이/패딩 확대, 긴 메모 2줄 처리로 행 잘림 방지. 상담 목록 검색이 고객명·전화번호·메모·유입경로·담당자까지 검색 |
 | 데이터 | localStorage 저장 + 데모 데이터 + JSON 내보내기/가져오기 + 전체 초기화 |
 | 저장 방식 3종 | ① 이 브라우저(localStorage) ② Google 시트 직접 연결 ③ 원격 API(`/api/...`) 연결 |
+| 5석 실시간 공유 | 설정에 Apps Script 웹앱 URL을 넣으면 저장·수정·삭제가 `상담접수_공유` 시트에 바로 반영되고 20초마다 새로고침. 상세 화면에 `삭제` 버튼 추가(5석 모두에게서 삭제) |
+
+## 5석 실시간 공유 (Apps Script)
+
+각 상담원 PC의 브라우저가 따로 저장하던 상담을 하나의 시트로 모아 실시간 공유합니다.
+
+1. 상담일지 스프레드시트(`1KmzJPAI3BJppZEmuvpgQRmKO_kWC6BeAy6XLnRKUV-E`) → 확장 프로그램 → Apps Script
+2. `apps-script/Code.gs` 내용을 붙여넣고 저장
+3. 배포 → 새 배포 → 웹 앱 · 실행: `나` · 액세스: `모든 사용자` → `/exec` 주소 복사
+4. 상담 데스크 → 설정 → **5석 실시간 공유** 칸에 주소를 넣고 `연결 테스트` → `저장`
+
+- 시트에는 `상담접수_공유` 탭이 자동으로 생깁니다. 기존 `상담일지`(문의함 1,951행)는 건드리지 않습니다.
+- 열: `id`, `lead_key`, `created_at`, `updated_at`, `customer_name`, `phone`, `channel`, `agent`, `type`, `status`, `callback_at`, `memo`
+- 저장·수정·삭제는 `text/plain` POST(`action: upsert | delete`)로 보내 CORS 프리플라이트를 피합니다.
+  읽기는 GET(JSON), 브라우저가 막으면 `callback` 을 붙인 JSONP 로 자동 전환합니다.
+- 연결이 끊긴 동안 저장한 건은 이 브라우저에 남기고 `전송 대기`로 두었다가 20초마다 다시 보냅니다.
+- 주소를 비우면 기존처럼 이 브라우저에만 저장합니다.
 
 ## Google 시트 연결 (기본 설정됨)
 
@@ -78,5 +95,6 @@ GitHub → Settings → Pages → Source: `Deploy from a branch` → `main` / `/
 ## 파일
 
 - `index.html` — 앱 전체 (스타일·스크립트 포함, 외부 의존 없음)
+- `apps-script/Code.gs` — 5석 공유용 Apps Script (스프레드시트에 붙여넣는 파일)
 - `.nojekyll` — GitHub Pages에서 Jekyll 처리 생략
 - `README.md` — 이 문서
