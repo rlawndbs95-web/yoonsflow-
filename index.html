@@ -1000,6 +1000,10 @@ async function saveCurrent(){
     data.lead_key = leadDraft.key;
     if(!data.lead_name) data.lead_name = leadDraft.name || '';
     if(!data.lead_channel) data.lead_channel = leadDraft.channel || '';
+  }else if(selected){
+    if(!data.lead_key && selected.lead_key) data.lead_key = selected.lead_key;
+    if(!data.lead_channel && selected.lead_channel) data.lead_channel = selected.lead_channel;
+    if(!data.lead_name && selected.lead_name) data.lead_name = selected.lead_name;
   }
 
   var dup = calls.find(function(c){
