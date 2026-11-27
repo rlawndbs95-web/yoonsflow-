@@ -3,124 +3,279 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>상담 데스크 · YOONSFLOW</title>
+<title>상담 데스크 · YOONSFLOW CS DESK</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-:root{--header:#123540;--accent:#11675f;--bg:#f2f6f7;--line:#d7e2e4;--ink:#192d3a;--muted:#506774}
+:root{
+  --cream:#FAF8F4; --cream-2:#F4F0E8; --card:#FFFFFF;
+  --line:#E6E0D4; --line-soft:#F0EAE0;
+  --ink:#23302A; --ink-2:#4A5A52; --muted:#7E8B83;
+  --sage-deep:#2D4A3E; --sage:#4E6E5D; --sage-soft:#EBF1EC; --sage-line:#D6E2D9;
+  --amber-bg:#FBF3E6; --amber-ink:#9A5B25;
+  --terra-bg:#FDF0EC; --terra-ink:#B54832;
+  --shadow:0 4px 20px rgba(46,74,62,.05);
+  --shadow-lg:0 18px 48px rgba(46,74,62,.13);
+  --r-lg:20px; --r-md:16px; --r-sm:12px;
+}
 *{box-sizing:border-box}
-body{margin:0;color:var(--ink);background:var(--bg);font:16px/1.55 system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
-header{background:var(--header);color:#fff;padding:16px 6%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-header strong{letter-spacing:.09em;font-size:16px}
-header small{color:#b6d6d9;font-size:13px}
-.head-right{display:flex;align-items:center;gap:8px}
-main{max-width:1160px;margin:auto;padding:34px 24px 56px}
-h1{font-size:32px;margin:0;letter-spacing:-.01em}
-h2{font-size:19px;margin:0 0 14px}
-p{color:var(--muted);margin:4px 0 20px}
-.lede{margin-bottom:0}
-.grid{display:grid;grid-template-columns:1.45fr 1fr;gap:20px;align-items:start}
-.panel,.stat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:22px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}
-.stat{font-size:13.5px;color:#4c6570;border-top:3px solid #459a99;padding:16px 18px}
-.stat b{display:block;color:#183944;font-size:28px;line-height:1.2;margin-top:2px}
-.stat.warn{border-top-color:#d97706}
-.stat.warn b{color:#a3560b}
-label{display:block;font-weight:600;margin:12px 0 4px;font-size:14.5px}
-input,select,textarea,button{font:inherit;border-radius:8px;border:1px solid #c2d2d6;padding:9px;background:#fff;color:inherit}
-input,textarea,select{width:100%}
-textarea{resize:vertical}
-button{cursor:pointer}
-button.primary{background:var(--accent);color:#fff;border:0;width:100%;margin-top:14px;padding:12px;font-weight:600}
-button.primary:hover{background:#0d574f}
-button:disabled{opacity:.5;cursor:default}
-button.ghost{background:transparent;color:#dbecef;border:1px solid #3d6472;padding:7px 13px;font-size:14px}
-button.ghost:hover{background:#1b4653}
-button.small{padding:6px 11px;font-size:13.5px}
-.filters{display:flex;gap:8px;flex-wrap:wrap}
-.filters input{flex:2;min-width:150px}
-.filters select{flex:1;min-width:110px}
-.row{border:0;border-bottom:1px solid #dce6e8;width:100%;padding:14px 10px;text-align:left;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-radius:8px;background:transparent}
-.row:hover{background:#f5fafb}
-.row>div{min-width:0;flex:1}
-.row strong{display:block;font-size:15px;font-weight:700;overflow-wrap:anywhere}
-.row small{display:block;color:#5b7280;font-size:13px;margin-top:3px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.badge{font-size:13px;background:#e8f3ef;color:#166758;padding:4px 10px;border-radius:20px;white-space:nowrap;flex:none}
-.badge.soft{background:#e6eef1;color:#3c5c69}
-.badge.done{background:#e6eef1;color:#4a6472}
-.badge.new{background:#e8f3ef;color:#11675f}
-.badge.due{background:#fdeceb;color:#a5251c}
-.badge.soon{background:#fff2df;color:#96560a}
-.empty{text-align:center;padding:36px 12px;color:#627784;font-size:14.5px}
-#msg{color:#0d6b46;font-size:14px;min-height:22px;margin:16px 0 0}
-#msg.err{color:#a5251c}
-.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;color:var(--ink);
+  background:
+    radial-gradient(1200px 480px at 12% -10%, #FFFDF8 0%, rgba(255,253,248,0) 60%),
+    linear-gradient(180deg,#FAF8F4 0%,#F6F2EA 55%,#F4F0E8 100%);
+  background-attachment:fixed;
+  font:16px/1.6 "Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-feature-settings:"tnum" 0;
+  -webkit-font-smoothing:antialiased;
+}
+.num,input[type=tel],.stat b,.badge,.pill,#today,#pending,#done,#dueCount{font-variant-numeric:tabular-nums}
+
+/* ---------- header ---------- */
+header{
+  background:linear-gradient(180deg,#2D4A3E 0%,#274237 100%);
+  color:#F7F3E9;padding:15px 6%;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  border-bottom:1px solid rgba(214,198,168,.28);
+  position:sticky;top:0;z-index:30;
+  box-shadow:0 2px 18px rgba(35,48,42,.13);
+}
+.brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand-name{letter-spacing:.22em;font-size:14.5px;font-weight:600}
+.brand-chip{
+  font-size:11px;letter-spacing:.16em;font-weight:600;color:#E9E1CE;
+  border:1px solid rgba(233,225,206,.42);border-radius:999px;padding:3px 10px;
+}
+.brand-right{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.seats{font-size:12.5px;color:#CFDCD3;letter-spacing:.02em}
+.seats b{color:#F3EFE3;font-weight:600}
+.seat-names{color:#C9D8CE}
+@media(max-width:900px){.seat-names{display:none}}
+.mode-chip{
+  font-size:12px;padding:4px 11px;border-radius:999px;
+  background:rgba(235,241,236,.14);color:#DDEAE0;border:1px solid rgba(221,234,224,.25);
+  white-space:nowrap;
+}
+header .btn-ghost{
+  background:transparent;color:#F1EDE1;border:1px solid rgba(233,225,206,.4);
+  padding:7px 15px;font-size:13.5px;border-radius:999px;letter-spacing:.02em;
+}
+header .btn-ghost:hover{background:rgba(233,225,206,.12);border-color:rgba(233,225,206,.7)}
+
+/* ---------- shell ---------- */
+main{max-width:1180px;margin:auto;padding:40px 24px 64px}
+.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:26px}
+.eyebrow{font-size:11px;letter-spacing:.2em;color:var(--sage);font-weight:600;margin:0 0 8px}
+h1{font-size:clamp(26px,3.4vw,34px);margin:0;letter-spacing:-.02em;font-weight:600;color:var(--sage-deep)}
+.hero-sub{margin:8px 0 0;color:var(--muted);font-size:14.5px}
+.conn{
+  display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--sage);
+  background:var(--sage-soft);border:1px solid var(--sage-line);
+  padding:7px 14px;border-radius:999px;white-space:nowrap;font-weight:500;
+}
+.conn::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--sage);display:inline-block;box-shadow:0 0 0 3px rgba(78,110,93,.12)}
+h2{font-size:17px;margin:0 0 16px;font-weight:600;color:var(--sage-deep);letter-spacing:-.01em}
+p{color:var(--muted);margin:4px 0 18px}
+
+/* ---------- cards / stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:0 0 22px}
+.stat{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:20px 22px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.stat span{font-size:12.5px;color:var(--muted);letter-spacing:.01em}
+.stat b{display:block;margin-top:6px;font-size:31px;line-height:1.1;font-weight:600;color:var(--sage-deep);letter-spacing:-.02em}
+.stat::after{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:var(--sage-soft)}
+.stat.alert-stat::after{background:var(--terra-bg)}
+.stat.alert-stat b{color:var(--sage-deep)}
+.stat.alert-stat.on::after{background:var(--terra-ink)}
+.stat.alert-stat.on b{color:var(--terra-ink)}
+
+/* ---------- panels ---------- */
+.panel,.stat{background:var(--card)}
+.panel{
+  border:1px solid var(--line);border-radius:var(--r-lg);padding:26px;
+  box-shadow:var(--shadow);
+}
+.grid{display:grid;grid-template-columns:1.42fr 1fr;gap:20px;align-items:start}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* ---------- form controls ---------- */
+label{display:block;font-weight:500;margin:14px 0 6px;font-size:13px;color:var(--ink-2);letter-spacing:.01em}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{
+  width:100%;background:#FDFBF7;border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:11px 13px;font-size:14.5px;transition:border-color .15s,box-shadow .15s,background .15s;
+}
+input::placeholder,textarea::placeholder{color:#A9B2AC}
+input:hover,select:hover,textarea:hover{border-color:#D8D0C0}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--sage);background:#fff;
+  box-shadow:0 0 0 3px rgba(78,110,93,.15);
+}
+textarea{resize:vertical;min-height:96px;line-height:1.6}
+select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%234E6E5D' stroke-width='1.6' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+button{cursor:pointer;border-radius:var(--r-sm);border:1px solid var(--line);background:#fff;padding:9px 14px;font-size:14px;transition:all .15s}
+button:hover{border-color:#D8D0C0;background:#FDFBF7}
+button:disabled{opacity:.45;cursor:default}
+button.primary{
+  background:var(--sage-deep);color:#F8F5EC;border:0;width:100%;margin-top:18px;
+  padding:13px;font-weight:600;font-size:15px;letter-spacing:.01em;border-radius:var(--r-sm);
+  box-shadow:0 6px 16px rgba(45,74,62,.18);
+}
+button.primary:hover{background:var(--sage);box-shadow:0 8px 22px rgba(45,74,62,.24)}
+button.small{padding:7px 13px;font-size:13px;color:var(--ink-2);border-radius:999px;background:#fff}
+button.small:hover{color:var(--sage-deep);border-color:var(--sage-line);background:var(--sage-soft)}
+.filters{display:flex;gap:9px;flex-wrap:wrap}
+.filters input{flex:2;min-width:170px}
+.filters select{flex:1;min-width:118px}
 .two{display:flex;gap:12px}
 .two>div{flex:1;min-width:0}
-.chip{font-size:12.5px;padding:4px 10px;border-radius:20px;background:#dff0f2;color:#0f4b57;white-space:nowrap}
-.inbox{margin:0 0 20px}
-.inbox .top{margin-bottom:12px}
-.inbox .top h2{margin:0}
-.inbox .filters select{flex:1.2}
-#feedStatus{display:block;margin:10px 0 4px;color:#5b7280;font-size:13px}
-#feedRows{max-height:min(60vh,470px);overflow:auto;border-top:1px solid #dce6e8;padding:2px 0}
-#list{max-height:min(62vh,520px);overflow:auto}
-#list .row{padding:13px 8px}
-.row.urgent{background:#fdf3f2;box-shadow:inset 3px 0 0 #c0392b}
-.row.soon{background:#fff9ef;box-shadow:inset 3px 0 0 #d97706}
-.paging{display:flex;gap:8px;justify-content:space-between;align-items:center;margin:12px 0 0;font-size:13px;color:#5b7280}
+.hint{font-size:12.5px;color:var(--muted);margin:7px 0 0;line-height:1.5}
+
+/* ---------- rows ---------- */
+.row{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;width:100%;
+  text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line-soft);
+  border-radius:10px;padding:15px 12px;transition:background .14s;
+}
+.row:last-child{border-bottom:0}
+.row:hover{background:#FBFAF5}
+.row>div{min-width:0;flex:1}
+.row-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.row-head strong{font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink);overflow-wrap:anywhere}
+.row-phone{font-size:13px;color:var(--sage);letter-spacing:.01em}
+.row-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:7px;font-size:12.5px;color:var(--muted)}
+.row-note{
+  margin-top:7px;font-size:12.5px;color:#8A968F;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;
+}
+.row-right{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.row.urgent{background:var(--terra-bg);box-shadow:inset 3px 0 0 var(--terra-ink)}
+.row.soon{background:var(--amber-bg);box-shadow:inset 3px 0 0 #D89A5B}
+#feedRows{max-height:min(58vh,480px);overflow:auto;border-top:1px solid var(--line-soft);padding:4px 0}
+#list{max-height:min(60vh,540px);overflow:auto;margin-top:12px}
+
+/* ---------- pills / badges ---------- */
+.pill{
+  display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;
+  padding:3px 9px;border-radius:999px;white-space:nowrap;letter-spacing:.01em;
+  background:#F1F0EA;color:#5F6A63;border:1px solid transparent;
+}
+.pill-sage{background:var(--sage-soft);color:#2F5D4C;border-color:#DCE8DE}
+.pill-mint{background:#EAF3EA;color:#3B6B4E;border-color:#DAEADA}
+.pill-clay{background:#F8EDE6;color:#8E5540;border-color:#F0DFD4}
+.pill-lilac{background:#EFEDF4;color:#5C5480;border-color:#E3E0EC}
+.pill-sand{background:#F6F0E1;color:#7A6337;border-color:#EDE4CE}
+.pill-neutral{background:#F1F1EC;color:#5F6A63;border-color:#E7E7DF}
+.pill-amber{background:var(--amber-bg);color:var(--amber-ink);border-color:#F1E1C7}
+.pill-terra{background:var(--terra-bg);color:var(--terra-ink);border-color:#F3D8D0}
+.pill-done{background:#EEF1EC;color:#54655B;border-color:#E2E7DE}
+.pill-cta{background:#fff;color:var(--sage);border-color:var(--sage-line);font-weight:600;padding:5px 12px}
+.pill-cta:hover{background:var(--sage-soft)}
+.pill-saved{background:var(--sage-deep);color:#F6F3E9;border-color:var(--sage-deep);font-weight:600;padding:5px 12px}
+
+/* ---------- misc ---------- */
+.empty{text-align:center;padding:40px 14px;color:var(--muted);font-size:14px}
+.empty strong{display:block;color:var(--sage-deep);font-weight:600;margin-bottom:6px}
+.paging{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:14px 0 0;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
 .paging div{display:flex;gap:8px}
-.alert{display:flex;align-items:center;gap:10px;justify-content:space-between;background:#fdf3f2;border:1px solid #f0cfcb;color:#8d2b21;border-radius:12px;padding:12px 16px;margin:0 0 18px;font-size:14.5px;flex-wrap:wrap}
+.alert{
+  display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;
+  background:var(--terra-bg);border:1px solid #F3D8D0;color:var(--terra-ink);
+  border-radius:var(--r-md);padding:13px 18px;margin:0 0 20px;font-size:14px;font-weight:500;
+}
 .alert[hidden]{display:none}
-.alert.soon-only{background:#fff8ec;border-color:#f2ddb9;color:#8a5309}
-.leadbar{display:none;align-items:center;justify-content:space-between;gap:10px;background:#eef6f4;border:1px solid #cfe4de;border-radius:10px;padding:10px 12px;margin:0 0 6px;font-size:13.5px;color:#1c5f57}
+.alert.soon-only{background:var(--amber-bg);border-color:#F1E1C7;color:var(--amber-ink)}
+.alert button{background:#fff;border-color:currentColor;color:inherit;font-size:12.5px;padding:6px 12px;border-radius:999px}
+.leadbar{display:none;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--sage-soft);border:1px solid var(--sage-line);border-radius:var(--r-sm);
+  padding:10px 14px;margin:6px 0 2px;font-size:13px;color:#2F5D4C}
 .leadbar.on{display:flex}
-.leadbar button{background:transparent;border:0;color:#8a3b32;font-size:13px;text-decoration:underline;padding:2px 4px}
-#dupNotice{display:none;margin:10px 0 0;font-size:13px;color:#96560a;background:#fff8ec;border:1px solid #f0dcbd;border-radius:8px;padding:8px 10px}
+.leadbar button{background:transparent;border:0;color:#8A3B32;font-size:12.5px;padding:2px 4px;text-decoration:underline}
+#dupNotice{display:none;margin:9px 0 0;font-size:12.5px;color:var(--amber-ink);background:var(--amber-bg);border:1px solid #F1E1C7;border-radius:10px;padding:9px 12px}
 #dupNotice.on{display:block}
 #callbackWrap{display:none}
 #callbackWrap.on{display:block}
-.hint{font-size:12.5px;color:#6b8090;margin:5px 0 0}
-.detail-meta{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 4px}
-footer.data{margin-top:26px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:#6b8090;font-size:13px}
-footer.data button{font-size:13.5px;padding:7px 12px}
-.modal{position:fixed;inset:0;background:rgba(18,53,64,.5);display:flex;align-items:flex-start;justify-content:center;padding:5vh 16px;z-index:50;overflow:auto}
+#msg{color:var(--sage);font-size:13.5px;min-height:22px;margin:18px 0 0}
+#msg.err{color:var(--terra-ink)}
+.list-count{font-size:12.5px;color:var(--muted);padding:4px 10px;background:#F7F4EC;border-radius:999px}
+.inbox{margin:0 0 20px}
+.inbox .top{align-items:flex-start;margin-bottom:16px}
+.inbox .filters{margin-top:2px}
+#feedStatus{display:block;margin:14px 0 4px;color:var(--muted);font-size:12.5px}
+footer.data{
+  margin-top:28px;padding:16px 20px;background:rgba(255,255,255,.6);border:1px solid var(--line);
+  border-radius:var(--r-md);display:flex;gap:9px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:12.5px;
+}
+footer.data span:first-child{font-weight:600;color:var(--ink-2);letter-spacing:.04em}
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;background:rgba(35,48,42,.45);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:5vh 16px;z-index:60;overflow:auto}
 .modal[hidden]{display:none}
-.sheet{background:#fff;border-radius:16px;max-width:620px;width:100%;padding:24px 26px 26px;box-shadow:0 20px 60px rgba(10,35,45,.28)}
-.sheet h2{margin:0 0 4px}
-.sheet h3{font-size:16px;margin:26px 0 6px;padding-top:18px;border-top:1px solid #e2eaec}
-.sheet .row-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
-.sheet .row-actions button{padding:10px 18px}
-button.danger{background:#fff;border:1px solid #e3b7b2;color:#a5251c;padding:8px 12px;font-size:13.5px}
-.mode-row{display:flex;gap:10px 16px;margin:8px 0 4px;font-size:14.5px;flex-wrap:wrap}
-.mode-row label{display:flex;align-items:center;gap:6px;margin:0;font-weight:500}
-.mode-row input{width:auto}
-#sheetWrap,#remoteWrap{display:none;margin-top:8px;padding:12px 14px;background:#f6fafb;border:1px solid #dde8ea;border-radius:10px}
+.sheet{background:var(--card);border-radius:22px;max-width:640px;width:100%;padding:28px 30px 26px;box-shadow:var(--shadow-lg);border:1px solid var(--line)}
+.sheet h2{margin:0;font-size:20px}
+.sheet h3{font-size:14.5px;margin:26px 0 4px;padding-top:20px;border-top:1px solid var(--line-soft);color:var(--sage-deep);letter-spacing:.01em}
+.sheet .row-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:24px}
+.sheet .row-actions button{padding:11px 22px}
+button.danger{background:#fff;border:1px solid #EBCBC4;color:var(--terra-ink);padding:8px 13px;font-size:13px;border-radius:999px}
+button.danger:hover{background:var(--terra-bg)}
+.mode-row{display:flex;gap:10px 18px;margin:10px 0 4px;font-size:14px;flex-wrap:wrap}
+.mode-row label{display:flex;align-items:center;gap:7px;margin:0;font-weight:500;color:var(--ink-2)}
+.mode-row input{width:auto;accent-color:var(--sage)}
+#sheetWrap,#remoteWrap{display:none;margin-top:10px;padding:15px 16px;background:#FBF9F4;border:1px solid var(--line);border-radius:var(--r-md)}
 #sheetWrap.on,#remoteWrap.on{display:block}
-#sheetWrap .hint,#remoteWrap .hint{margin-top:8px;line-height:1.45}
-#sheetResult,#remoteResult{display:block;margin-top:6px}
-.agent-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:8px}
-.agent-grid label{margin:0 0 3px;font-size:13px;color:#4c6570}
-@media(max-width:820px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.agent-grid{grid-template-columns:1fr}}
-@media(max-width:750px){.stat{padding:12px}.panel{padding:16px}main{padding:22px 14px}h1{font-size:27px}.filters select{flex-basis:47%}header{padding:14px 5%}}
+#sheetResult,#remoteResult{display:block;margin-top:8px}
+.agent-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-top:10px}
+.agent-grid label{margin:0 0 4px;font-size:12.5px;color:var(--muted)}
+#dataCounts{margin-top:12px}
+
+@media(max-width:860px){
+  .grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .agent-grid{grid-template-columns:1fr}
+  main{padding:28px 16px 48px}
+  .panel{padding:20px}
+  h1{font-size:27px}
+  .hero{align-items:flex-start}
+  #feedRows,#list{max-height:none}
+}
+@media(max-width:520px){
+  .filters input,.filters select{flex:1 1 100%}
+  .stat b{font-size:26px}
+  header{padding:13px 5%}
+}
 </style>
 </head>
 <body>
 <header>
-  <div class="brand"><strong>YOONSFLOW</strong><small>병원 CS 센터 · 5석</small></div>
-  <div class="head-right">
-    <span class="chip" id="modeChip">로컬 저장</span>
-    <button id="openSettings" class="ghost" type="button">설정</button>
+  <div class="brand">
+    <span class="brand-name">YOONSFLOW</span>
+    <span class="brand-chip">CS DESK</span>
+  </div>
+  <div class="brand-right">
+    <span class="seats" id="seatInfo">상담원 <b>5석</b></span>
+    <span class="mode-chip" id="modeChip">Google 시트</span>
+    <button id="openSettings" class="btn-ghost" type="button">설정</button>
   </div>
 </header>
+
 <main>
-  <div class="top"><h1>상담 데스크</h1><span class="badge soft" id="connBadge">KT 회선 미연결</span></div>
-  <p class="lede">상담 접수와 콜백 이력을 관리하세요.</p>
+  <section class="hero">
+    <div>
+      <p class="eyebrow">CLINIC SERVICE DESK</p>
+      <h1>상담 데스크</h1>
+      <p class="hero-sub" id="heroSub">상담 접수와 콜백 이력을 관리하세요.</p>
+    </div>
+    <span class="conn" id="connBadge">Google 시트 연결</span>
+  </section>
 
   <div class="stats">
-    <div class="stat">오늘 접수<b id="today">–</b></div>
-    <div class="stat">콜백 대기<b id="pending">–</b></div>
-    <div class="stat">오늘 접수 중 완료<b id="done">–</b></div>
-    <div class="stat warn">콜백 임박·지남<b id="dueCount">–</b></div>
+    <div class="stat"><span>오늘 접수</span><b id="today">–</b></div>
+    <div class="stat"><span>콜백 대기</span><b id="pending">–</b></div>
+    <div class="stat"><span>오늘 접수 중 완료</span><b id="done">–</b></div>
+    <div class="stat alert-stat" id="dueStat"><span>콜백 임박·지남</span><b id="dueCount">–</b></div>
   </div>
 
   <div class="alert" id="dueBanner" hidden>
@@ -130,19 +285,20 @@ button.danger{background:#fff;border:1px solid #e3b7b2;color:#a5251c;padding:8px
 
   <section class="panel inbox">
     <div class="top">
-      <h2>광고·시트 문의함</h2>
-      <div style="display:flex;gap:8px">
-        <button id="reloadFeed" class="small" type="button">새로고침</button>
+      <div>
+        <h2 style="margin-bottom:4px">광고·시트 문의함</h2>
+        <span class="hint" style="margin:0">시트에 들어온 문의를 바로 상담으로 접수하세요.</span>
       </div>
+      <button id="reloadFeed" class="small" type="button">새로고침</button>
     </div>
     <div class="filters">
+      <input id="leadSearch" aria-label="문의 검색" placeholder="고객명 · 전화번호 · 내원경로 · 메모 검색">
       <select id="feedSource" aria-label="유입 출처">
         <option value="all">전체 문의</option>
         <option value="sheet">시트 · 인콜/네이버</option>
         <option value="meta">메타·SNS 유입</option>
         <option value="unhandled">미접수만</option>
       </select>
-      <input id="leadSearch" aria-label="문의 검색" placeholder="고객명 · 전화번호 · 내원경로 · 메모">
     </div>
     <small id="feedStatus" role="status">문의 확인 중…</small>
     <div id="feedRows"></div>
@@ -152,19 +308,22 @@ button.danger{background:#fff;border:1px solid #e3b7b2;color:#a5251c;padding:8px
     </div>
     <details id="metaSettings" hidden>
       <summary>Meta 광고 연결 설정</summary>
-      <p>광고 양식 ID와 잠재고객 조회 권한이 있는 페이지 토큰을 입력하세요. 연결을 확인한 뒤 토큰을 암호화해 저장합니다. (원격 API 모드에서만 동작)</p>
+      <p class="hint">광고 양식 ID와 잠재고객 조회 권한이 있는 페이지 토큰을 입력하세요. (원격 API 모드에서 동작)</p>
       <form id="metaForm">
         <label for="formId">잠재고객 양식 ID</label><input id="formId" required pattern="[0-9]{4,30}">
         <label for="pageToken">페이지 액세스 토큰</label><input id="pageToken" required type="password" autocomplete="off">
         <button class="primary">연결 확인 및 저장</button>
       </form>
-      <span id="metaResult" role="status"></span>
+      <span id="metaResult" class="hint" role="status"></span>
     </details>
   </section>
 
   <div class="grid">
     <section class="panel">
-      <div class="top" style="margin-bottom:12px"><h2 style="margin:0">상담 목록</h2><span class="hint" id="listCount"></span></div>
+      <div class="top" style="margin-bottom:14px">
+        <h2 style="margin:0">상담 목록</h2>
+        <span class="list-count" id="listCount"></span>
+      </div>
       <div class="filters">
         <input id="search" placeholder="고객명 · 전화번호 · 상담 메모 검색" aria-label="상담 통합 검색">
         <select id="filter" aria-label="상태 필터">
@@ -175,11 +334,14 @@ button.danger{background:#fff;border:1px solid #e3b7b2;color:#a5251c;padding:8px
         </select>
         <select id="filterAgent" aria-label="담당 상담원 필터"><option value="">전체 담당</option></select>
       </div>
-      <div id="list" style="margin-top:10px">불러오는 중…</div>
+      <div id="list">불러오는 중…</div>
     </section>
 
     <section class="panel" id="formPanel">
-      <div class="top" style="margin-bottom:6px"><h2 id="title" style="margin:0">상담 접수</h2><button id="reset" type="button" class="small">새 접수</button></div>
+      <div class="top" style="margin-bottom:8px">
+        <h2 id="title" style="margin:0">상담 접수</h2>
+        <button id="reset" type="button" class="small">새 접수</button>
+      </div>
       <div class="leadbar" id="leadBar">
         <span id="leadBarText"></span>
         <button type="button" id="leadClear">연결 해제</button>
@@ -214,11 +376,11 @@ button.danger{background:#fff;border:1px solid #e3b7b2;color:#a5251c;padding:8px
 
   <footer class="data">
     <span>데이터</span>
-    <button type="button" id="footerDemo">데모 데이터 불러오기</button>
-    <button type="button" id="footerExport">내보내기(JSON)</button>
+    <button type="button" id="footerDemo">데모 데이터</button>
+    <button type="button" id="footerExport">내보내기</button>
     <button type="button" id="footerImport">가져오기</button>
     <input type="file" id="importFile" accept="application/json,.json" hidden>
-    <span id="storageNote">브라우저(localStorage)에 저장됩니다.</span>
+    <span id="storageNote">문의는 Google 시트에서 불러오고, 상담은 이 브라우저에 저장됩니다.</span>
   </footer>
 </main>
 
@@ -227,13 +389,13 @@ button.danger{background:#fff;border:1px solid #e3b7b2;color:#a5251c;padding:8px
     <div class="top"><h2 id="settingsTitle">설정</h2><button type="button" class="small" id="closeSettings">닫기</button></div>
 
     <h3>상담원 이름 (5석)</h3>
-    <p class="hint" style="margin:0 0 6px">비워 두면 기본 이름으로 표시됩니다. 이름은 이 브라우저에 저장됩니다.</p>
+    <p class="hint" style="margin:0 0 4px">이름을 바꾸면 이 브라우저에 저장됩니다. 상담 목록의 담당 필터에도 바로 반영됩니다.</p>
     <div class="agent-grid" id="agentGrid"></div>
 
     <h3>저장 방식</h3>
     <div class="mode-row">
-      <label><input type="radio" name="mode" value="local"> 이 브라우저에 저장</label>
       <label><input type="radio" name="mode" value="sheet"> Google 시트 연결</label>
+      <label><input type="radio" name="mode" value="local"> 이 브라우저에 저장</label>
       <label><input type="radio" name="mode" value="remote"> 원격 API 연결</label>
     </div>
     <div id="sheetWrap">
@@ -241,22 +403,22 @@ button.danger{background:#fff;border:1px solid #e3b7b2;color:#a5251c;padding:8px
       <input id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/…/edit#gid=0">
       <label for="sheetName">시트 탭 이름 (선택)</label>
       <input id="sheetName" placeholder="예: 상담일지">
-      <p class="hint">시트를 <b>링크가 있는 모든 사용자 · 뷰어</b>로 공유하면 브라우저에서 바로 읽습니다. 날짜·이름·연락처 열은 자동으로 인식합니다.</p>
+      <p class="hint">시트를 <b>링크가 있는 모든 사용자 · 뷰어</b>로 공유하면 브라우저에서 바로 읽습니다. 날짜·고객명·연락처 열은 자동으로 인식합니다.</p>
       <button type="button" class="small" id="testSheet">시트 연결 확인</button>
       <span id="sheetResult" class="hint" role="status"></span>
     </div>
     <div id="remoteWrap">
       <label for="remoteBase">원격 API 주소</label>
       <input id="remoteBase" placeholder="https://yoonsflow-call-desk.rlawndbs95.chatgpt.site">
-      <p class="hint">주소의 <code>/api/calls</code>, <code>/api/leads</code>를 사용합니다. 다른 사이트에서 호출하려면 해당 서버가 CORS를 허용해야 합니다.</p>
+      <p class="hint">주소의 <code>/api/calls</code>, <code>/api/leads</code>를 사용합니다. 다른 도메인에서 호출하려면 해당 서버가 CORS를 허용해야 합니다.</p>
       <button type="button" class="small" id="testRemote">연결 확인</button>
       <span id="remoteResult" class="hint" role="status"></span>
     </div>
 
     <h3>데이터 관리</h3>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-      <button type="button" class="small" id="demoLoad">데모 데이터 불러오기</button>
-      <button type="button" class="small" id="exportBtn">내보내기(JSON)</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button type="button" class="small" id="demoLoad">데모 데이터</button>
+      <button type="button" class="small" id="exportBtn">내보내기 (JSON)</button>
       <button type="button" class="small" id="importBtn">가져오기</button>
       <button type="button" class="danger" id="wipeBtn">전체 초기화</button>
     </div>
@@ -277,12 +439,12 @@ button.danger{background:#fff;border:1px solid #e3b7b2;color:#a5251c;padding:8px
 var $ = function(id){ return document.getElementById(id); };
 var K = {calls:'ydesk.calls.v1', leads:'ydesk.leads.v1', agents:'ydesk.agents.v1', cfg:'ydesk.cfg.v1', meta:'ydesk.meta.v1', sheet:'ydesk.sheet.v1'};
 var DEFAULT_AGENTS = ['천서희','강효은','이지은','문예지','신입'];
+var DEFAULT_SHEET = 'https://docs.google.com/spreadsheets/d/1KmzJPAI3BJppZEmuvpgQRmKO_kWC6BeAy6XLnRKUV-E/edit';
 var STATES = ['접수','콜백 대기','완료'];
 var KINDS = ['예약 문의','예약 변경','시술 문의','사후 관리','기타'];
 var SOON_MS = 30 * 60 * 1000;
 var FEED_SIZE = 12;
 
-/* ---------- 상태 ---------- */
 function readJSON(key, fallback){
   try{ var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
   catch(e){ return fallback; }
@@ -291,9 +453,8 @@ function writeJSON(key, value){
   try{ localStorage.setItem(key, JSON.stringify(value)); return true; }
   catch(e){ flash('브라우저 저장 공간이 부족해 저장하지 못했습니다. 내보내기로 백업한 뒤 정리해 주세요.', true); return false; }
 }
-function uid(){ return (crypto && crypto.randomUUID) ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2); }
+function uid(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2); }
 
-var DEFAULT_SHEET = 'https://docs.google.com/spreadsheets/d/1KmzJPAI3BJppZEmuvpgQRmKO_kWC6BeAy6XLnRKUV-E/edit';
 var cfg = Object.assign({mode:'sheet', remoteBase:'', sheetUrl:DEFAULT_SHEET, sheetName:''}, readJSON(K.cfg, {}));
 var agents = normalizeAgents(readJSON(K.agents, null));
 var calls = readJSON(K.calls, []);
@@ -301,7 +462,7 @@ var leads = [];
 var meta = readJSON(K.meta, {form:'', connected:false});
 
 var selected = null, leadDraft = null, draftId = uid();
-var feedPage = 0, feedSeq = 0, feedTimer = null;
+var feedPage = 0, feedSeq = 0;
 
 function normalizeAgents(list){
   var out = [];
@@ -376,11 +537,49 @@ function el(tag, cls, text){
   if(text != null) n.textContent = text;
   return n;
 }
+function pill(text, cls){
+  return el('span', 'pill ' + (cls || 'pill-neutral'), text);
+}
+function channelClass(ch){
+  var s = String(ch || '');
+  if(/인콜/.test(s)) return 'pill-sage';
+  if(/네이버/.test(s)) return 'pill-mint';
+  if(/인스타|메타|meta|페이스북|sns/i.test(s)) return 'pill-clay';
+  if(/직원|지인/.test(s)) return 'pill-lilac';
+  if(/원내|워크인|아우름/.test(s)) return 'pill-sand';
+  return 'pill-neutral';
+}
 
 /* ---------- API (원격 모드) ---------- */
 function apiBase(){ return (cfg.mode === 'remote' && cfg.remoteBase) ? String(cfg.remoteBase).replace(/\/+$/, '') : ''; }
 function isRemote(){ return !!apiBase(); }
 function isSheet(){ return cfg.mode === 'sheet'; }
+
+async function remoteCalls(){
+  var res = await fetch(apiBase() + '/api/calls', {headers:{Accept:'application/json'}});
+  if(!res.ok) throw new Error('상담 목록을 불러오지 못했습니다 (' + res.status + ')');
+  var data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+async function remoteSave(data){
+  var res = await fetch(apiBase() + '/api/calls', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  if(!res.ok){
+    if(res.status === 409) throw new Error('기록이 이미 저장되었거나 변경됐습니다. 목록에서 다시 선택해 주세요.');
+    if(res.status === 400) throw new Error('전화번호 형식을 확인해 주세요.');
+    throw new Error('저장하지 못했습니다. 다시 시도해 주세요. (' + res.status + ')');
+  }
+  return true;
+}
+async function remoteLeads(params){
+  var res = await fetch(apiBase() + '/api/leads?' + params.toString(), {headers:{Accept:'application/json'}});
+  var data = await res.json().catch(function(){ return {}; });
+  if(!res.ok) throw new Error(data.error || '문의를 불러오지 못했습니다.');
+  return data;
+}
 
 /* ---------- Google 시트 (CSV) ---------- */
 var COL_WORDS = {
@@ -398,7 +597,7 @@ var COL_WORDS = {
   visited:['내원여부','내원 여부','방문여부'],
   recall:['리콜','재콜']
 };
-var COL_LABEL = {date:'날짜', name:'이름', phone:'연락처', channel:'유입경로', memo:'메모', result:'결과', booking:'예약일', booker:'예약자', category:'구분', treatment:'시술명', reason:'사유', visited:'내원여부', recall:'리콜'};
+var COL_LABEL = {date:'날짜', name:'고객명', phone:'연락처', channel:'내원경로', memo:'상담메모', result:'콜결과', booking:'예약일', booker:'예약자', category:'구분', treatment:'시술명', reason:'사유', visited:'내원여부', recall:'리콜'};
 var FALLBACK_MAP = {date:0, booker:1, channel:2, category:3, name:4, phone:5, treatment:6, result:7, booking:8, reason:9, memo:10, visited:11, recall:12};
 
 function parseCSV(text){
@@ -558,32 +757,6 @@ function loadLeadsForMode(){
   }
 }
 
-async function remoteCalls(){
-  var res = await fetch(apiBase() + '/api/calls', {headers:{Accept:'application/json'}});
-  if(!res.ok) throw new Error('상담 목록을 불러오지 못했습니다 (' + res.status + ')');
-  var data = await res.json();
-  return Array.isArray(data) ? data : [];
-}
-async function remoteSave(data){
-  var res = await fetch(apiBase() + '/api/calls', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(data)
-  });
-  if(!res.ok){
-    if(res.status === 409) throw new Error('기록이 이미 저장되었거나 변경됐습니다. 목록에서 다시 선택해 주세요.');
-    if(res.status === 400) throw new Error('전화번호 형식을 확인해 주세요.');
-    throw new Error('저장하지 못했습니다. 다시 시도해 주세요. (' + res.status + ')');
-  }
-  return true;
-}
-async function remoteLeads(params){
-  var res = await fetch(apiBase() + '/api/leads?' + params.toString(), {headers:{Accept:'application/json'}});
-  var data = await res.json().catch(function(){ return {}; });
-  if(!res.ok) throw new Error(data.error || '문의를 불러오지 못했습니다.');
-  return data;
-}
-
 /* ---------- 상담 불러오기 ---------- */
 async function loadCalls(){
   if(isRemote()){
@@ -609,13 +782,20 @@ async function loadCalls(){
   return true;
 }
 
-/* ---------- 상담원 선택 채우기 ---------- */
+/* ---------- 상담원 선택 ---------- */
 function fillAgentSelects(){
   var keepForm = $('agent').value, keepFilter = $('filterAgent').value;
   $('agent').replaceChildren.apply($('agent'), agents.map(function(a){ return new Option(a, a); }));
-  $('filterAgent').replaceChildren(new Option('전체 담당', ''), ...agents.map(function(a){ return new Option(a, a); }));
+  $('filterAgent').replaceChildren.apply($('filterAgent'), [new Option('전체 담당', '')].concat(agents.map(function(a){ return new Option(a, a); })));
   if(agents.indexOf(keepForm) >= 0) $('agent').value = keepForm;
   $('filterAgent').value = agents.indexOf(keepFilter) >= 0 ? keepFilter : '';
+  var s = $('seatInfo');
+  if(s){
+    s.replaceChildren();
+    s.append(el('span', null, '상담원 '));
+    s.append(el('b', null, '5석'));
+    s.append(el('span', 'seat-names', ' · ' + agents.join(' · ')));
+  }
 }
 function fillStaticSelects(){
   STATES.forEach(function(s){ $('state').add(new Option(s, s)); });
@@ -653,6 +833,7 @@ function renderStats(){
   $('pending').textContent = calls.filter(function(c){ return c.state === '콜백 대기'; }).length;
   $('done').textContent = todays.filter(function(c){ return c.state === '완료'; }).length;
   $('dueCount').textContent = due.length;
+  $('dueStat').classList.toggle('on', due.length > 0);
 
   var overdue = calls.filter(function(c){ return dueInfo(c).rank === 0; }).length;
   var soon = calls.filter(function(c){ return dueInfo(c).rank === 1; }).length;
@@ -679,7 +860,10 @@ function renderList(){
   $('listCount').textContent = (found.length === calls.length ? calls.length + '건' : found.length + ' / ' + calls.length + '건');
 
   if(!found.length){
-    list.append(el('div', 'empty', calls.length ? '조건에 맞는 상담이 없습니다.' : '첫 상담을 접수하면 이곳에 표시됩니다.'));
+    var empty = el('div', 'empty');
+    empty.append(el('strong', null, calls.length ? '조건에 맞는 상담이 없습니다' : '아직 접수된 상담이 없습니다'));
+    empty.append(document.createTextNode(calls.length ? '검색어나 필터를 바꿔 보세요.' : '문의함에서 고객을 선택하면 바로 접수할 수 있습니다.'));
+    list.append(empty);
     return;
   }
 
@@ -688,28 +872,27 @@ function renderList(){
     var b = document.createElement('button');
     b.type = 'button';
     b.className = 'row' + (d.cls ? ' ' + d.cls : '');
+
     var body = el('div');
-    body.append(el('strong', null, callName(c) + ' · ' + (c.phone || '번호 없음')));
-    var small = el('small', null, [
-      c.lead_channel || c.channel,
-      c.agent,
-      c.kind,
-      fmtDateTime(c.created)
-    ].filter(Boolean).join(' · '));
-    body.append(small);
+    var head = el('div', 'row-head');
+    head.append(el('strong', null, callName(c)));
+    if(c.phone) head.append(el('span', 'row-phone', c.phone));
+    body.append(head);
+
+    var meta = el('div', 'row-meta');
+    if(c.lead_channel || c.channel) meta.append(pill(c.lead_channel || c.channel, channelClass(c.lead_channel || c.channel)));
+    if(c.agent) meta.append(pill(c.agent, 'pill-neutral'));
+    if(c.kind) meta.append(pill(c.kind, 'pill-neutral'));
+    meta.append(el('span', null, fmtDateTime(c.created)));
+    body.append(meta);
+
     if(c.memo){
-      var memo = el('small', null, c.memo.replace(/\s+/g, ' ').slice(0, 120));
-      memo.style.color = '#7b8f9b';
-      body.append(memo);
+      body.append(el('div', 'row-note', c.memo.replace(/\s+/g, ' ').slice(0, 140)));
     }
-    var right = el('div');
-    right.style.cssText = 'flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px';
-    if(d.label){
-      var cb = el('span', 'badge ' + (d.cls === 'urgent' ? 'due' : d.cls === 'soon' ? 'soon' : 'soft'), d.label);
-      right.append(cb);
-    }
-    var stateBadge = el('span', 'badge' + (c.state === '완료' ? ' done' : ''), c.state || '접수');
-    right.append(stateBadge);
+
+    var right = el('div', 'row-right');
+    if(d.label) right.append(pill(d.label, d.cls === 'urgent' ? 'pill-terra' : d.cls === 'soon' ? 'pill-amber' : 'pill-neutral'));
+    right.append(pill(c.state || '접수', c.state === '완료' ? 'pill-done' : c.state === '콜백 대기' ? 'pill-amber' : 'pill-sage'));
     b.append(body, right);
     b.onclick = function(){ openCall(c); };
     list.append(b);
@@ -882,31 +1065,37 @@ function filteredLeads(){
     return qd.length >= 3 && digits(l.phone).indexOf(qd) >= 0;
   });
 }
-function leadMeta(l){
-  return [
-    l.date, l.channel, l.category,
-    l.booker && l.name && l.booker !== l.name ? '예약자 ' + l.booker : '',
-    l.result,
-    l.booking ? '예약 ' + l.booking : '',
-    l.visited
-  ].filter(Boolean).join(' · ');
+function leadMetaParts(l){
+  var parts = [];
+  if(l.channel) parts.push(pill(l.channel, channelClass(l.channel)));
+  if(l.date) parts.push(el('span', null, l.date));
+  if(l.category) parts.push(el('span', null, l.category));
+  if(l.result) parts.push(el('span', null, l.result));
+  if(l.booking) parts.push(pill('예약 ' + l.booking, 'pill-sand'));
+  if(l.booker && l.name && l.booker !== l.name) parts.push(el('span', null, '예약자 ' + l.booker));
+  if(l.visited) parts.push(el('span', null, l.visited));
+  return parts;
 }
 function feedLine(l){
   var saved = leadRegistered(l);
   var b = document.createElement('button');
   b.type = 'button';
   b.className = 'row';
+
   var body = el('div');
-  body.append(el('strong', null, [l.name || '이름 미기재', l.phone].filter(Boolean).join(' · ')));
-  body.append(el('small', null, leadMeta(l) || (l.channel || '시트')));
+  var head = el('div', 'row-head');
+  head.append(el('strong', null, l.name || '이름 미기재'));
+  if(l.phone) head.append(el('span', 'row-phone', l.phone));
+  body.append(head);
+
+  var meta = el('div', 'row-meta');
+  leadMetaParts(l).forEach(function(n){ meta.append(n); });
+  if(meta.childNodes.length) body.append(meta);
+
   var note = [l.treatment, l.memo].filter(Boolean).join(' — ');
-  if(note){
-    var memo = el('small', null, String(note).replace(/\s+/g, ' ').slice(0, 160));
-    memo.style.color = '#7b8f9b';
-    body.append(memo);
-  }
-  var tag = el('span', 'badge' + (saved ? ' new' : ' soft'), saved ? '접수됨' : '접수하기');
-  b.append(body, tag);
+  if(note) body.append(el('div', 'row-note', String(note).replace(/\s+/g, ' ').slice(0, 160)));
+
+  b.append(body, el('span', 'pill ' + (saved ? 'pill-saved' : 'pill-cta'), saved ? '접수됨' : '접수하기'));
   b.onclick = function(){ saved ? openCall(saved) : startFromLead(l); };
   return b;
 }
@@ -918,7 +1107,10 @@ function renderFeed(){
   var box = $('feedRows');
   box.replaceChildren();
   if(!slice.length){
-    box.append(el('div', 'empty', leads.length ? '조건에 맞는 문의가 없습니다.' : '문의가 없습니다. 설정 → 데모 데이터 불러오기로 화면을 확인할 수 있습니다.'));
+    var empty = el('div', 'empty');
+    empty.append(el('strong', null, leads.length ? '조건에 맞는 문의가 없습니다' : '문의가 아직 없습니다'));
+    empty.append(document.createTextNode(leads.length ? '검색어나 유입 출처를 바꿔 보세요.' : '설정에서 Google 시트 링크를 연결하면 문의가 채워집니다.'));
+    box.append(empty);
   }else{
     slice.forEach(function(l){ box.append(feedLine(l)); });
   }
@@ -989,8 +1181,8 @@ async function refreshFeed(force){
 function updateModeUI(){
   var remote = isRemote(), sheet = isSheet();
   $('modeChip').textContent = remote ? '원격 API' : sheet ? 'Google 시트' : '로컬 저장';
-  $('connBadge').textContent = remote ? '원격 서버 연결' : sheet ? 'Google 시트 연결' : 'KT 회선 미연결';
-  $('storageNote').textContent = remote ? '원격 API(' + apiBase() + ')에 저장됩니다.' : sheet ? '문의는 Google 시트에서 불러오고, 상담은 이 브라우저에 저장됩니다.' : '브라우저(localStorage)에 저장됩니다.';
+  $('connBadge').textContent = remote ? '원격 서버 연결' : sheet ? 'Google 시트 연결' : '로컬 저장 모드';
+  $('storageNote').textContent = remote ? '원격 API(' + apiBase() + ')에 저장됩니다.' : sheet ? '문의는 Google 시트에서 불러오고, 상담은 이 브라우저에 저장됩니다.' : '상담과 문의를 이 브라우저(localStorage)에 저장합니다.';
   $('metaSettings').hidden = !remote;
 }
 function updateDataCounts(){
@@ -1026,7 +1218,7 @@ function openSettings(){
 function closeSettings(){ $('settingsModal').hidden = true; }
 function toggleRemoteWrap(){
   var mode = document.querySelector('input[name="mode"]:checked');
-  var value = mode ? mode.value : 'local';
+  var value = mode ? mode.value : 'sheet';
   $('remoteWrap').classList.toggle('on', value === 'remote');
   $('sheetWrap').classList.toggle('on', value === 'sheet');
 }
@@ -1039,7 +1231,7 @@ function saveSettings(){
   agents = next;
   writeJSON(K.agents, agents);
   var mode = document.querySelector('input[name="mode"]:checked');
-  cfg.mode = mode ? mode.value : 'local';
+  cfg.mode = mode ? mode.value : 'sheet';
   cfg.remoteBase = $('remoteBase').value.trim();
   cfg.sheetUrl = $('sheetUrl').value.trim();
   cfg.sheetName = $('sheetName').value.trim();
@@ -1068,27 +1260,27 @@ function demoLeads(){
     return (d.getMonth() + 1) + '/' + d.getDate();
   }
   return [
-    {key:'demo-1', name:'김하늘', phone:'010-0000-1011', date:label(0), channel:'인콜', isMeta:false, memo:'리투오 상담 희망 · 12월 초 예약 가능한지 문의', result:'예약', booking:''},
-    {key:'demo-2', name:'이서준', phone:'010-0000-1022', date:label(0), channel:'네이버', isMeta:false, memo:'보톡스 가격 문의, 첫 방문 예정', result:'기타', booking:''},
-    {key:'demo-3', name:'박지안', phone:'010-0000-1033', date:label(0), channel:'메타', isMeta:true, memo:'인스타그램 광고 보고 문의 · 시술 종류 상담 요청', result:'상담중', booking:''},
-    {key:'demo-4', name:'최유진', phone:'010-0000-1044', date:label(1), channel:'인콜', isMeta:false, memo:'예약 변경 요청 · 다음 주로 옮기고 싶다고 함', result:'예약', booking:''},
-    {key:'demo-5', name:'정다온', phone:'010-0000-1055', date:label(1), channel:'메타', isMeta:true, memo:'11월 프로모션 문의 · 금액대 안내 요청', result:'기타', booking:''},
-    {key:'demo-6', name:'한수빈', phone:'010-0000-1066', date:label(1), channel:'직원지인', isMeta:false, memo:'지인 소개 예약 건 · 담당자 지정 요청', result:'예약', booking:''},
-    {key:'demo-7', name:'오세림', phone:'010-0000-1077', date:label(2), channel:'네이버', isMeta:false, memo:'사후 관리 문의 · 시술 후 붉은기 지속', result:'기타', booking:''},
-    {key:'demo-8', name:'임채원', phone:'010-0000-1088', date:label(2), channel:'인콜', isMeta:false, memo:'부재중 전화 · 콜백 요청', result:'기타', booking:''},
-    {key:'demo-9', name:'서지우', phone:'010-0000-1099', date:label(3), channel:'메타', isMeta:true, memo:'가격표 요청 · 카톡으로 안내 희망', result:'기타', booking:''},
-    {key:'demo-10', name:'문가온', phone:'010-0000-1100', date:label(3), channel:'인콜', isMeta:false, memo:'예약 확정 안내 요청', result:'예약', booking:''}
+    {key:'demo-1', name:'김하늘', phone:'010-0000-1011', date:label(0), channel:'인콜', isMeta:false, category:'초진', treatment:'리투오 상담', memo:'12월 초 예약 가능한지 문의', result:'예약', booking:''},
+    {key:'demo-2', name:'이서준', phone:'010-0000-1022', date:label(0), channel:'네이버', isMeta:false, category:'초진', treatment:'보톡스', memo:'가격 문의, 첫 방문 예정', result:'기타', booking:''},
+    {key:'demo-3', name:'박지안', phone:'010-0000-1033', date:label(0), channel:'메타', isMeta:true, category:'초진', treatment:'리프팅', memo:'인스타그램 광고 보고 문의', result:'상담중', booking:''},
+    {key:'demo-4', name:'최유진', phone:'010-0000-1044', date:label(1), channel:'인콜', isMeta:false, category:'재진', treatment:'예약 변경', memo:'다음 주로 옮기고 싶다고 함', result:'예약', booking:''},
+    {key:'demo-5', name:'정다온', phone:'010-0000-1055', date:label(1), channel:'메타', isMeta:true, category:'초진', treatment:'이벤트 문의', memo:'11월 프로모션 금액 안내 요청', result:'기타', booking:''},
+    {key:'demo-6', name:'한수빈', phone:'010-0000-1066', date:label(1), channel:'직원지인', isMeta:false, category:'초진', treatment:'지인 소개', memo:'담당자 지정 요청', result:'예약', booking:''},
+    {key:'demo-7', name:'오세림', phone:'010-0000-1077', date:label(2), channel:'네이버', isMeta:false, category:'재진', treatment:'사후 관리', memo:'시술 후 붉은기 지속 문의', result:'기타', booking:''},
+    {key:'demo-8', name:'임채원', phone:'010-0000-1088', date:label(2), channel:'인콜', isMeta:false, category:'초진', treatment:'부재중', memo:'콜백 요청', result:'부재', booking:''},
+    {key:'demo-9', name:'서지우', phone:'010-0000-1099', date:label(3), channel:'메타', isMeta:true, category:'초진', treatment:'가격표 요청', memo:'카톡으로 안내 희망', result:'기타', booking:''},
+    {key:'demo-10', name:'문가온', phone:'010-0000-1100', date:label(3), channel:'인콜', isMeta:false, category:'재진', treatment:'예약 확정', memo:'예약 확정 안내 요청', result:'예약', booking:''}
   ];
 }
 function demoCalls(){
   var t = Date.now();
   return [
     {id:'demo-call-1', rev:0, phone:'010-0000-1011', lead_name:'김하늘', lead_key:'demo-1', lead_channel:'인콜', agent:agents[0], kind:'예약 문의', state:'콜백 대기',
-     memo:'12월 초 리투오 가능 일정 확인 후 콜백. 고객은 오후 3시 이후 통화 가능.', callback_at:new Date(t - 25 * 60000).toISOString(), created:new Date(t - 2 * 3600000).toISOString(), updated:new Date(t - 60000).toISOString()},
+     memo:'12월 초 리투오 가능 일정 확인 후 콜백. 오후 3시 이후 통화 가능.', callback_at:new Date(t - 25 * 60000).toISOString(), created:new Date(t - 2 * 3600000).toISOString(), updated:new Date(t - 60000).toISOString()},
     {id:'demo-call-2', rev:0, phone:'010-0000-1044', lead_name:'최유진', lead_key:'demo-4', lead_channel:'인콜', agent:agents[1], kind:'예약 변경', state:'콜백 대기',
      memo:'기존 예약일 변경 요청. 다음 주 수요일 오전 희망.', callback_at:new Date(t + 12 * 60000).toISOString(), created:new Date(t - 5 * 3600000).toISOString(), updated:new Date(t - 60000).toISOString()},
     {id:'demo-call-3', rev:0, phone:'010-0000-1022', lead_name:'이서준', lead_key:'demo-2', lead_channel:'네이버', agent:agents[2], kind:'시술 문의', state:'완료',
-     memo:'보톡스 가격 안내 완료. 첫 방문 시 상담 후 결정하기로 함.', callback_at:'', created:new Date(t - 90 * 60000).toISOString(), updated:new Date(t - 40 * 60000).toISOString()},
+     memo:'보톡스 가격 안내 완료. 첫 방문 시 상담 후 결정.', callback_at:'', created:new Date(t - 90 * 60000).toISOString(), updated:new Date(t - 40 * 60000).toISOString()},
     {id:'demo-call-4', rev:0, phone:'010-0000-1077', lead_name:'오세림', lead_key:'demo-7', lead_channel:'네이버', agent:agents[3], kind:'사후 관리', state:'접수',
      memo:'시술 후 붉은기 문의. 담당 실장 확인 후 연락 필요.', callback_at:'', created:new Date(t - 26 * 3600000).toISOString(), updated:new Date(t - 26 * 3600000).toISOString()}
   ];
@@ -1183,6 +1375,7 @@ function bind(){
   fillAgentSelects();
 
   $('form').addEventListener('submit', function(e){ e.preventDefault(); saveCurrent(); });
+  $('save').addEventListener('click', function(e){ e.preventDefault(); saveCurrent(); });
   $('reset').addEventListener('click', resetForm);
   $('leadClear').addEventListener('click', function(){ leadDraft = null; setLeadBar(null); });
   $('state').addEventListener('change', function(){
@@ -1290,8 +1483,14 @@ function bind(){
 }
 
 /* ---------- 시작 ---------- */
+function paintDate(){
+  var d = new Date();
+  var s = d.toLocaleDateString('ko-KR', {timeZone:'Asia/Seoul', year:'numeric', month:'long', day:'numeric', weekday:'long'});
+  $('heroSub').textContent = s + ' · 상담 접수와 콜백 이력을 관리하세요.';
+}
 function boot(){
   bind();
+  paintDate();
   loadLeadsForMode();
   updateModeUI();
   render();
