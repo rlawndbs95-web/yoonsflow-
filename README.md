@@ -16,23 +16,32 @@ GitHub Pages, 사내 웹서버, 파일 직접 열기 어디서든 그대로 실�
 | 문의함 레이아웃·통합 검색 | 목록 높이/패딩 확대, 긴 메모 2줄 처리로 행 잘림 방지. 상담 목록 검색이 고객명·전화번호·메모·유입경로·담당자까지 검색 |
 | 데이터 | localStorage 저장 + 데모 데이터 + JSON 내보내기/가져오기 + 전체 초기화 |
 | 저장 방식 3종 | ① 이 브라우저(localStorage) ② Google 시트 직접 연결 ③ 원격 API(`/api/...`) 연결 |
-| 5석 실시간 공유 | 설정에 Apps Script 웹앱 URL을 넣으면 저장·수정·삭제가 `상담접수_공유` 시트에 바로 반영되고 20초마다 새로고침. 상세 화면에 `삭제` 버튼 추가(5석 모두에게서 삭제) |
+| 5석 실시간 공유 | 공유 주소가 앱에 기본 내장되어 열면 바로 연결됩니다. 저장·수정·삭제가 `상담접수_공유` 시트에 바로 반영되고 20초마다 새로고침. 상세 화면에 `삭제` 버튼 추가(5석 모두에게서 삭제) |
 
 ## 5석 실시간 공유 (Apps Script)
 
 각 상담원 PC의 브라우저가 따로 저장하던 상담을 하나의 시트로 모아 실시간 공유합니다.
+**공유 주소가 `index.html`에 기본 내장되어 있어**, 5석 PC는
+https://rlawndbs95-web.github.io/yoonsflow-/ 에 접속하기만 하면 별도 설정 없이 바로 연결됩니다.
 
-1. 상담일지 스프레드시트(`1KmzJPAI3BJppZEmuvpgQRmKO_kWC6BeAy6XLnRKUV-E`) → 확장 프로그램 → Apps Script
+- 기본 주소: `https://script.google.com/macros/s/AKfycbxSWZ5hiKOTSk3OXf-xPgB48fjihgQzGsgepAD_cPOMRJkBPAgxyICJbpNSJn36y4oYEQ/exec`
+- 기본 대상 시트: 공유 DB `YOONSFLOW 상담접수 공유DB` (`1I-I-OeiXbCH5k4HinOMdqHeQxpr2UJ4PKum_JwWnoh0`)
+- 다른 주소로 바꾸거나 공유를 끄려면 → 설정 → **5석 실시간 공유** 칸 수정(칸을 비우고 저장하면 이 브라우저에만 저장)
+
+새로 설치할 때만:
+
+1. 공유 DB 스프레드시트(`YOONSFLOW 상담접수 공유DB`, `1I-I-OeiXbCH5k4HinOMdqHeQxpr2UJ4PKum_JwWnoh0`) → 확장 프로그램 → Apps Script
 2. `apps-script/Code.gs` 내용을 붙여넣고 저장
 3. 배포 → 새 배포 → 웹 앱 · 실행: `나` · 액세스: `모든 사용자` → `/exec` 주소 복사
-4. 상담 데스크 → 설정 → **5석 실시간 공유** 칸에 주소를 넣고 `연결 테스트` → `저장`
+4. 받은 주소를 `index.html`의 `DEFAULT_SHARE_URL`(또는 설정 → 5석 실시간 공유 칸)에 넣기
 
-- 시트에는 `상담접수_공유` 탭이 자동으로 생깁니다. 기존 `상담일지`(문의함 1,951행)는 건드리지 않습니다.
+- 시트에는 `상담접수_공유` 탭이 자동으로 생깁니다. 문의함 시트(상담일지, 1,951행)는 읽지도 쓰지도 않습니다.
 - 열: `id`, `lead_key`, `created_at`, `updated_at`, `customer_name`, `phone`, `channel`, `agent`, `type`, `status`, `callback_at`, `memo`
 - 저장·수정·삭제는 `text/plain` POST(`action: upsert | delete`)로 보내 CORS 프리플라이트를 피합니다.
   읽기는 GET(JSON), 브라우저가 막으면 `callback` 을 붙인 JSONP 로 자동 전환합니다.
 - 연결이 끊긴 동안 저장한 건은 이 브라우저에 남기고 `전송 대기`로 두었다가 20초마다 다시 보냅니다.
-- 주소를 비우면 기존처럼 이 브라우저에만 저장합니다.
+- 저장소가 비어 있거나(`shareCleared`) 이전 버전이 빈 값을 저장해 둔 경우: 저장값이 비어 있고 사용자가 직접 해제한 기록이 없으면 내장 기본 주소를 사용합니다.
+- 주소를 비우고 저장하면 기존처럼 이 브라우저에만 저장합니다.
 
 ## Google 시트 연결 (기본 설정됨)
 

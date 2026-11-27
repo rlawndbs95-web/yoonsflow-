@@ -2,11 +2,11 @@
  * YOONSFLOW 상담 데스크 — 5석 실시간 공유 API (Google Apps Script)
  * ------------------------------------------------------------------
  * 5석 상담원 PC가 같은 상담 접수·콜백 상태·메모를 함께 보도록,
- * 상담일지 스프레드시트 안에 `상담접수_공유` 탭을 따로 만들어 읽고 씁니다.
- * 기존 문의함 시트(1,951행)는 건드리지 않습니다.
+ * 공유 DB 스프레드시트(`YOONSFLOW 상담접수 공유DB`) 안에 `상담접수_공유` 탭을 만들어 읽고 씁니다.
+ * 문의함 시트(상담일지, 1,951행)는 읽지도 쓰지도 않습니다.
  *
  * ■ 설치 (한 번만, 스프레드시트 소유 계정으로)
- *   1. 상담일지 스프레드시트(1KmzJPAI3BJppZEmuvpgQRmKO_kWC6BeAy6XLnRKUV-E)를 연다.
+ *   1. 공유 DB 스프레드시트(YOONSFLOW 상담접수 공유DB, 1I-I-OeiXbCH5k4HinOMdqHeQxpr2UJ4PKum_JwWnoh0)를 연다.
  *   2. 확장 프로그램 → Apps Script 를 연다.
  *   3. 이 파일 내용을 Code.gs 에 모두 붙여넣고 저장(Ctrl+S)한다.
  *   4. 배포 → 새 배포 → 유형 '웹 앱'
@@ -14,8 +14,8 @@
  *        - 다음 사용자로 실행: 나
  *        - 액세스 권한: 모든 사용자
  *      → 배포 → '웹 앱 URL'(.../exec)을 복사한다.
- *   5. 상담 데스크 → 설정 → '5석 실시간 공유' 칸에 그 URL을 붙여넣고 저장한다.
- *      (나머지 상담원 PC도 같은 URL을 한 번씩 넣으면 끝입니다.)
+ *   5. 상담 데스크(https://rlawndbs95-web.github.io/yoonsflow-/)는 이 URL이 기본으로 들어 있어
+ *      설정 없이 바로 연결됩니다. 다른 주소로 바꿀 때만 설정 → '5석 실시간 공유' 칸을 고칩니다.
  *
  * ■ API
  *   GET  ?action=list            → { ok:true, calls:[ {...}, ... ] }
@@ -29,7 +29,7 @@
  *   오류는 HTTP 200 + { ok:false, error:'...' } 로 돌려줍니다.
  */
 
-var SPREADSHEET_ID = '1KmzJPAI3BJppZEmuvpgQRmKO_kWC6BeAy6XLnRKUV-E';
+var SPREADSHEET_ID = '1I-I-OeiXbCH5k4HinOMdqHeQxpr2UJ4PKum_JwWnoh0';
 var SHEET_NAME = '상담접수_공유';
 
 /** 공유 시트 열 (순서 고정) */
