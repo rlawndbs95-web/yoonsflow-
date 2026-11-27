@@ -451,13 +451,30 @@ function formatPhone(v){
   if(d.length === 11) return d.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
   return d;
 }
-function sheetDateValue(v){
-  var m = String(v == null ? '' : v).match(/(\d{1,2})\s*[\/.\-]\s*(\d{1,2})/);
+function mdToTs(dateStr){
+  var m = String(dateStr == null ? '' : dateStr).match(/(\d{1,2})\s*[\/.\-]\s*(\d{1,2})/);
   if(!m) return 0;
   var now = new Date(), year = now.getFullYear(), month = +m[1], day = +m[2];
   if(month < 1 || month > 12 || day < 1 || day > 31) return 0;
   if(month > now.getMonth() + 2) year -= 1;
   return new Date(year, month - 1, day).getTime();
+}
+function rowTs(memo, dateStr){
+  var m = String(memo == null ? '' : memo).match(/(\d{2})(\d{2})(\d{2})\s+(\d{1,2}):(\d{2})/);
+  if(m){
+    var year = 2000 + +m[1], month = +m[2], day = +m[3];
+    if(year >= 2000 && year <= new Date().getFullYear() + 1 && month >= 1 && month <= 12 && day >= 1 && day <= 31){
+      return new Date(year, month - 1, day, +m[4], +m[5]).getTime();
+    }
+  }
+  return mdToTs(dateStr);
+}
+function displayDate(ts, raw){
+  if(!ts) return raw || '';
+  var d = new Date(ts);
+  if(d.getFullYear() === new Date().getFullYear()) return raw || '';
+  var pad = function(n){ return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 function leadsFromRows(rows, map, headerIndex){
   var out = [];
@@ -468,14 +485,16 @@ function leadsFromRows(rows, map, headerIndex){
     if(!name && !digits(rawPhone)) return;
     var phone = formatPhone(rawPhone);
     var channel = cell('channel'), memo = cell('memo'), treatment = cell('treatment');
+    var ts = rowTs(memo, date);
     var key = 'sheet:' + JSON.stringify([date, name, digits(phone)]) + ':' + idx;
     out.push({
-      key: key, idx: idx, name: name, phone: phone, date: date, channel: channel,
+      key: key, idx: idx, name: name, phone: phone, date: displayDate(ts, date), rawDate: date,
+      channel: channel,
       isMeta: /인스타|메타|meta|페이스북|facebook|sns|유튜브|블로그/i.test(channel),
       result: cell('result'), booking: cell('booking'), booker: cell('booker'),
       category: cell('category'), treatment: treatment.slice(0, 160), memo: memo.slice(0, 600),
       reason: cell('reason'), visited: cell('visited'),
-      ts: sheetDateValue(date)
+      ts: ts
     });
   });
   out.sort(function(a, b){
@@ -858,7 +877,7 @@ function filteredLeads(){
     if(source === 'meta' && !l.isMeta) return false;
     if(source === 'unhandled' && leadRegistered(l)) return false;
     if(!q) return true;
-    var hay = [l.name, l.phone, l.channel, l.memo, l.result, l.booking, l.booker, l.treatment, l.category, l.reason].filter(Boolean).join(' ').toLowerCase();
+    var hay = [l.name, l.phone, l.channel, l.memo, l.result, l.booking, l.booker, l.treatment, l.category, l.reason, l.date, l.rawDate].filter(Boolean).join(' ').toLowerCase();
     if(hay.indexOf(q) >= 0) return true;
     return qd.length >= 3 && digits(l.phone).indexOf(qd) >= 0;
   });
