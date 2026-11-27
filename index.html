@@ -629,7 +629,7 @@ async function remoteLeads(params){
 /* ---------- 5석 실시간 공유 (Apps Script) ---------- */
 var SHARE_POLL_MS = 20000;
 var shareTimer = null, shareBusy = false;
-var shareState = {ok:null, at:0, error:'', transport:'fetch', sig:''};
+var shareState = {ok:null, at:0, error:'', transport:'fetch', sig:null};
 
 function hasShare(){ return !!(cfg.shareUrl && String(cfg.shareUrl).trim()); }
 function shareEndpoint(){ return String(cfg.shareUrl || '').trim().replace(/\s+/g, ''); }
@@ -876,7 +876,7 @@ function startShareTimer(){
 function stopShareTimer(){ if(shareTimer) clearInterval(shareTimer); shareTimer = null; }
 function resetShareRuntime(){
   stopShareTimer();
-  shareState = {ok:null, at:0, error:'', transport:'fetch', sig:''};
+  shareState = {ok:null, at:0, error:'', transport:'fetch', sig:null};
   updateModeUI();
   if(hasShare()){ startShareTimer(); sharePoll(); }
   else { loadCalls(); }
