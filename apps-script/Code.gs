@@ -122,7 +122,14 @@ function handle_(body) {
 
 function getSpreadsheet_() {
   var ss = null;
-  try { ss = SpreadsheetApp.getActiveSpreadsheet(); } catch (err) { ss = null; }
+  // 바운드 스크립트면 활성 스프레드시트를 그대로 쓰되, 다른 시트가 열려 있어도
+  // 엉뚱한 파일에 탭을 만들지 않도록 ID 를 확인합니다.
+  try {
+    var active = SpreadsheetApp.getActiveSpreadsheet();
+    if (active && String(active.getId()) === SPREADSHEET_ID) ss = active;
+  } catch (err) {
+    ss = null;
+  }
   if (!ss) ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   if (!ss) throw new Error('스프레드시트를 열지 못했습니다.');
   return ss;
