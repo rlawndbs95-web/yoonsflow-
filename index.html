@@ -311,6 +311,7 @@ button.danger:hover{background:var(--terra-bg)}
         <option value="all">전체 문의</option>
         <option value="sheet">시트 · 인콜/네이버</option>
         <option value="meta">메타·SNS 유입</option>
+        <option value="metaOnly">시트 · 메타/인스타그램/페이스북만</option>
         <option value="unhandled">미접수만</option>
       </select>
     </div>
@@ -478,7 +479,7 @@ button.danger:hover{background:var(--terra-bg)}
 var $ = function(id){ return document.getElementById(id); };
 var K = {calls:'ydesk.calls.v1', leads:'ydesk.leads.v1', agents:'ydesk.agents.v1', cfg:'ydesk.cfg.v1', meta:'ydesk.meta.v1', sheet:'ydesk.sheet.v1', outbox:'ydesk.outbox.v1'};
 var DEFAULT_AGENTS = ['천서희','강효은','이지은','문예지','신입'];
-var DEFAULT_SHEET = 'https://docs.google.com/spreadsheets/d/1KmzJPAI3BJppZEmuvpgQRmKO_kWC6BeAy6XLnRKUV-E/edit';
+var DEFAULT_SHEET = 'https://docs.google.com/spreadsheets/d/1KmzJPAI3BJppZEmuvpgQRmKO_kWC6BeAy6XLnRKUV-E/edit?gid=203917073';
 /* 5석 공유 기본 주소 — 처음 켜면 설정 없이 바로 연결됩니다. (YOONSFLOW 상담접수 공유DB · Apps Script 웹앱) */
 var DEFAULT_SHARE_URL = 'https://script.google.com/macros/s/AKfycbxSWZ5hiKOTSk3OXf-xPgB48fjihgQzGsgepAD_cPOMRJkBPAgxyICJbpNSJn36y4oYEQ/exec';
 var STATES = ['접수','콜백 대기','완료'];
@@ -498,6 +499,7 @@ function uid(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID(
 
 var storedCfg = readJSON(K.cfg, null) || {};
 var cfg = Object.assign({mode:'sheet', remoteBase:'', sheetUrl:DEFAULT_SHEET, sheetName:'', shareUrl:'', shareCleared:false}, storedCfg);
+if(!cfg.sheetName && cfg.sheetUrl === DEFAULT_SHEET.split('?')[0]) cfg.sheetUrl = DEFAULT_SHEET;
 /* 저장된 주소가 있으면 그대로 쓰고, 없으면 내장 기본 주소로 연결합니다.
    설정에서 주소를 지우고 저장한 경우(shareCleared)에는 그 선택을 존중해 로컬 저장으로 둡니다. */
 if(!String(cfg.shareUrl || '').trim() && !cfg.shareCleared) cfg.shareUrl = DEFAULT_SHARE_URL;
@@ -1014,7 +1016,7 @@ function leadsFromRows(rows, map, headerIndex){
     out.push({
       key: key, idx: idx, name: name, phone: phone, date: displayDate(ts, date), rawDate: date,
       channel: channel,
-      isMeta: /인스타|메타|meta|페이스북|facebook|sns|유튜브|블로그/i.test(channel),
+      isMeta: /인스타|instagram|메타|meta|페이스북|facebook|sns|유튜브|블로그/i.test(channel),
       result: cell('result'), booking: cell('booking'), booker: cell('booker'),
       category: cell('category'), treatment: treatment.slice(0, 160), memo: memo.slice(0, 600),
       reason: cell('reason'), visited: cell('visited'),
@@ -1050,7 +1052,7 @@ async function fetchSheetLeads(){
   if(!url) throw new Error('시트 주소를 확인해 주세요. (예: https://docs.google.com/spreadsheets/d/…/edit)');
   var res;
   try{
-    res = await fetch(url, {redirect:'follow'});
+    res = await fetch(url, {redirect:'follow', cache:'no-store'});
   }catch(e){
     throw new Error('시트에 접속하지 못했습니다. 네트워크와 시트 공유 설정을 확인해 주세요.');
   }
@@ -1073,9 +1075,13 @@ async function fetchSheetLeads(){
   var cols = Object.keys(map).map(function(k){ return COL_LABEL[k]; }).filter(Boolean);
   return {leads: list, cols: cols, assumed: assumed, url: url};
 }
+function currentSheetCache(){
+  var saved = readJSON(K.sheet, null);
+  return saved && saved.url === cfg.sheetUrl && (saved.sheet || '') === (cfg.sheetName || '') ? saved : null;
+}
 function loadLeadsForMode(){
   if(isSheet()){
-    var cache = readJSON(K.sheet, null);
+    var cache = currentSheetCache();
     leads = (cache && Array.isArray(cache.leads)) ? cache.leads : [];
   }else{
     leads = readJSON(K.leads, []);
@@ -1420,6 +1426,7 @@ function filteredLeads(){
   return leads.filter(function(l){
     if(source === 'sheet' && l.isMeta) return false;
     if(source === 'meta' && !l.isMeta) return false;
+    if(source === 'metaOnly' && !/메타|meta|instagram|인스타|facebook|페이스북/i.test(l.channel || '')) return false;
     if(source === 'unhandled' && leadRegistered(l)) return false;
     if(!q) return true;
     var hay = [l.name, l.phone, l.channel, l.memo, l.result, l.booking, l.booker, l.treatment, l.category, l.reason, l.date, l.rawDate].filter(Boolean).join(' ').toLowerCase();
@@ -1490,7 +1497,7 @@ async function refreshFeed(force){
       renderFeed();
       return;
     }
-    var cache = readJSON(K.sheet, null);
+    var cache = currentSheetCache();
     if(leads.length && cache && cache.at){
       status.textContent = 'Google 시트 · ' + leads.length + '건 · 최근 동기화 ' + fmtTime(cache.at) + (force ? ' · 동기화 중…' : '');
       renderFeed();
@@ -1503,7 +1510,7 @@ async function refreshFeed(force){
       if(seq !== feedSeq) return;
       leads = sheetData.leads;
       writeJSON(K.sheet, {url: cfg.sheetUrl, sheet: cfg.sheetName, at: Date.now(), cols: sheetData.cols, assumed: sheetData.assumed, leads: leads});
-      status.textContent = 'Google 시트 연결 · ' + leads.length + '건 · 최근 동기화 ' + fmtTime(Date.now()) + (sheetData.assumed ? ' · 기본 열 순서로 읽음' : '');
+      status.textContent = 'Google 시트 연결 · ' + leads.length + '건 · 최근 동기화 ' + fmtTime(Date.now()) + ' · 30초마다 갱신' + (sheetData.assumed ? ' · 기본 열 순서로 읽음' : '');
       renderFeed();
       renderStats();
       updateDataCounts();
@@ -1516,7 +1523,7 @@ async function refreshFeed(force){
     return;
   }
   if(isRemote()){
-    var params = new URLSearchParams({source: $('feedSource').value === 'meta' ? 'meta' : ($('feedSource').value === 'sheet' || $('feedSource').value === 'unhandled') ? 'sheet' : $('feedSource').value, q: $('leadSearch').value, offset: String(feedPage)});
+    var params = new URLSearchParams({source: $('feedSource').value === 'metaOnly' ? 'social' : $('feedSource').value === 'meta' ? 'meta' : ($('feedSource').value === 'sheet' || $('feedSource').value === 'unhandled') ? 'sheet' : $('feedSource').value, q: $('leadSearch').value, offset: String(feedPage)});
     try{
       var data = await remoteLeads(params);
       if(seq !== feedSeq) return;
@@ -1788,7 +1795,7 @@ function bind(){
   $('save').addEventListener('click', function(e){ e.preventDefault(); saveCurrent(); });
   $('reset').addEventListener('click', resetForm);
   $('deleteCall').addEventListener('click', deleteSelected);
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden && hasShare()) sharePoll(); });
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden){ if(hasShare()) sharePoll(); if(isSheet() || isRemote()) refreshFeed(true); } });
   $('leadClear').addEventListener('click', function(){ leadDraft = null; setLeadBar(null); });
   $('state').addEventListener('change', function(){
     toggleCallback();
@@ -1938,6 +1945,7 @@ function paintDate(){
 function boot(){
   bind();
   paintDate();
+  setInterval(function(){ if(!document.hidden && (isSheet() || isRemote())) refreshFeed(true); }, 30000);
   loadLeadsForMode();
   updateModeUI();
   render();
